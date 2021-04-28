@@ -1,13 +1,22 @@
---- A note on GPL versions
+--- General license notes
 
-arduino-gcc-project-builder is distributed under version 2 of the General
+'arduino-gcc-project-builder' is distributed under version 2 of the General
 Public License (included in its entirety, below).  Version 2 is the only
-version of this license which this version of arduino-gcc-project-builder
+version of this license which this version of 'arduino-gcc-project-builder'
 (or modified versions derived from this one) may be distributed under.
 
-A project using arduino-gcc-project-builder in order to compile its source
+A project using 'arduino-gcc-project-builder' in order to compile its source
 files is NOT considered a derivative work, therefore it is not obligated to
 comply with GPL V2 terms.
+
+'arduino-gcc-project-builder' bundles the 'arduino avr-core' (subjected to 
+its own license terms), which may be statically linked against projects using 
+the build system provided by 'arduino-gcc-project-builder'.
+For details,'./avr-core'.
+
+'arduino-gcc-project-builder' is based on 'gcc-project-builder', which is
+available under the same license terms as 'arduino-gcc-project-builder'.
+For details, see './gcc-project/LICENSE'.
 
 --------------------------------------------------------------------------------
 
