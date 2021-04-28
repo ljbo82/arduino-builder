@@ -28,28 +28,24 @@ else
     LIB_TYPE := static
 endif
 
-ifeq ($(BUILD_DIR_NAME), )
-    ifneq ($(BOARD), )
-        BUILD_DIR_NAME := $(BOARD)
-    else
-        BUILD_DIR_NAME := unknown
-        PRE_BUILD      += @echo "Missing BOARD"; exit 1;
-    endif
-endif
-
-ifeq ($(DIST_DIR_NAME), )
-    ifneq ($(BOARD), )
-        DIST_DIR_NAME := $(BOARD)
-    else
-        DIST_DIR_NAME := unknown
-    endif
+ifneq ($(HOST), )
+    $(error HOST cannot be defined)
 endif
 
 ifeq ($(BOARD), )
-    HOST := arduino-unknown
-else
-    HOST := arduino-$(BOARD)
-endif 
+    BOARD := unknown
+    PRE_BUILD += @echo "Missing BOARD"; exit 1;
+endif
+
+ifeq ($(BUILD_DIR_NAME), )
+    BUILD_DIR_NAME := $(BOARD)
+endif
+
+ifeq ($(DIST_DIR_NAME), )
+    DIST_DIR_NAME := $(BOARD)
+endif
+
+HOST   := arduino-$(BOARD)
 OS_DIR := ../boards
 
 include $(__arduino_defs_mk_dir)gcc-project/defs.mk
