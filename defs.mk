@@ -29,12 +29,21 @@ else
 endif
 
 ifneq ($(HOST), )
-    $(error HOST cannot be defined)
-endif
-
-ifeq ($(BOARD), )
-    BOARD := unknown
-    PRE_BUILD += @echo "Missing BOARD"; exit 1;
+    ifeq ($(shell echo $(HOST) | grep -oP '[a-zA-Z0-9]+\-[a-zA-Z0-9]+.*'), )
+        $(error Invalid HOST: $(HOST))
+    endif
+    hostOS := $(shell echo $(HOST) | cut -d'-' -f1)
+    ifneq ($(hostOS), arduino)
+        $(error Invalid HOST: $(HOST))
+    endif
+    BOARD := $(shell echo $(HOST) | cut -d'-' -f2-)
+else
+    hostOS := arduino
+    ifeq ($(BOARD), )
+        BOARD := unknown
+        PRE_BUILD += @echo "Missing BOARD"; exit 1;
+    endif
+    HOST := arduino-$(BOARD)
 endif
 
 ifeq ($(BUILD_DIR_NAME), )
@@ -45,7 +54,6 @@ ifeq ($(DIST_DIR_NAME), )
     DIST_DIR_NAME := $(BOARD)
 endif
 
-HOST   := arduino-$(BOARD)
 OS_DIR := ../boards
 
 include $(__arduino_defs_mk_dir)gcc-project/defs.mk
