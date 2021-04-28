@@ -1,0 +1,6 @@
+[submodule "avr-core"]
+	path = avr-core
+	url = https://github.com/arduino/ArduinoCore-avr.git
+[submodule "gcc-project"]
+	path = gcc-project
+	url = https://github.com/ljbo82/gcc-project-builder.git
