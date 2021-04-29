@@ -29,7 +29,7 @@ coreDirBase := $(_arduino_project_mk_dir)cores/avr
 coreLib := arduino-core$(shell echo $(CORE_VERSION) | cut -d'.' -f1)
 ifeq ($(DEBUG), 1)
     __debugSuffix := _d
-    coreLib       := $(coreLib)_$(__debugSuffix)
+    coreLib       := $(coreLib)$(__debugSuffix)
 endif
 
 ifeq ($(SKIP_CORE_PRE_BUILD), 0)
