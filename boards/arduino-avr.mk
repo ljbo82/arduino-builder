@@ -25,7 +25,7 @@ endif
 ifeq ($(CORE_VERSION), )
     CORE_VERSION := 1.8.3
 endif
-coreDirBase := $(_arduino_boards_arduino_avr_mk_dir)/cores/avr
+coreDirBase := $(_arduino_project_mk_dir)cores/avr
 coreLib := arduino-core$(shell echo $(CORE_VERSION) | cut -d'.' -f1)
 ifeq ($(DEBUG), 1)
     __debugSuffix := _d
@@ -70,7 +70,7 @@ ifeq ($(SKIP_CORE_PRE_BUILD), 0)
 $(coreDirBase)/dist/$(BOARD)/lib/lib$(coreLib).a:
 	@printf "$(nl)[BUILD] $@\n"
 	@rm -f $(buildDir)/$(artifactName) $(distDir)/bin/$(artifactName)
-	$(v)cd $(_arduino_boards_arduino_avr_mk_dir)/cores; $(MAKE) -f avr.mk CORE_VERSION=$(CORE_VERSION)
+	$(v)cd $(_arduino_project_mk_dir)cores; $(MAKE) -f avr.mk CORE_VERSION=$(CORE_VERSION)
 endif
 # ==============================================================================
 
