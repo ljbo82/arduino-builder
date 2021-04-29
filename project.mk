@@ -18,12 +18,10 @@
 ifndef _include_arduino_project_mk
 _include_arduino_project_mk := 1
 
-__arduino_project_mk_dir := $(dir $(lastword $(MAKEFILE_LIST)))
+_arduino_project_mk_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 
-include $(__arduino_project_mk_dir)defs.mk
-include $(__arduino_project_mk_dir)gcc-project/project.mk
-
-undefine __arduino_project_mk_dir
+include $(_arduino_project_mk_dir)defs.mk
+include $(_arduino_project_mk_dir)gcc-project/project.mk
 
 endif # _include_arduino_project_mk
 

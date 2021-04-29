@@ -18,17 +18,13 @@
 ifndef _include_arduino_boards_uno_mk
 _include_arduino_boards_uno_mk := 1
 
-__arduino_boards_uno_mk_dir  := $(dir $(lastword $(MAKEFILE_LIST)))
-
 _mcu     := atmega328p
 _fcpu    := 16000000L
 _board   := AVR_UNO
 _arch    := AVR
 _variant := standard
 
-include $(__arduino_boards_uno_mk_dir)arduino-avr.mk
-
-undefine __arduino_boards_uno_mk_dir
+include $(_boardsDir)/arduino-avr.mk
 
 endif # _include_arduino_boards_uno_mk
 

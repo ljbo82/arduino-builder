@@ -9,14 +9,14 @@ A project using 'arduino-gcc-project-builder' in order to compile its source
 files is NOT considered a derivative work, therefore it is not obligated to
 comply with GPL V2 terms.
 
-'arduino-gcc-project-builder' bundles the 'arduino avr-core' (subjected to 
-its own license terms), which may be statically linked against projects using 
-the build system provided by 'arduino-gcc-project-builder'.
-For details,'./avr-core'.
-
 'arduino-gcc-project-builder' is based on 'gcc-project-builder', which is
 available under the same license terms as 'arduino-gcc-project-builder'.
 For details, see './gcc-project/LICENSE'.
+
+'arduino-gcc-project-builder' may statically link projects against
+'arduino avr-core', which is subjected to its own license terms.
+Please refer to <https://github.com/arduino/ArduinoCore-avr> in order to
+check for license obligations.
 
 --------------------------------------------------------------------------------
 

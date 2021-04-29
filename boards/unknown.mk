@@ -18,10 +18,7 @@
 ifndef _include_arduino_boards_unknown_mk
 _include_arduino_boards_unknown_mk := 1
 
-__arduino_boards_unknown_mk_dir  := $(dir $(lastword $(MAKEFILE_LIST)))
-include $(__arduino_boards_unknown_mk_dir)arduino-avr.mk
-
-undefine __arduino_boards_unknown_mk_dir
+artifactName := unknown
 
 endif # _include_arduino_boards_unknown_mk
 

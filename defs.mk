@@ -57,6 +57,7 @@ endif
 OS_DIR := ../boards
 
 include $(__arduino_defs_mk_dir)gcc-project/defs.mk
+
 undefine __arduino_defs_mk_dir
 
 endif #_include_arduino_defs_mk

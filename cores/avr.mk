@@ -1,0 +1,103 @@
+# This file is part of arduino-gcc-project-builder.
+# Copyright (C) 2021 Leandro José Britto de Oliveira
+#
+# arduino-gcc-project-builder is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# arduino-gcc-project-builder is distributed in the hope that it will be 
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with arduino-gcc-project-builder.  If not, 
+# see <https://www.gnu.org/licenses/>
+
+ifeq ($(CORE_REPO), )
+    CORE_REPO := https://github.com/arduino/ArduinoCore-avr.git
+endif
+
+ifeq ($(CORE_VERSION), )
+    CORE_VERSION := 1.8.3
+endif
+
+thisFile    := $(lastword $(MAKEFILE_LIST))
+coreBaseDir := avr
+coreSrcDir  := $(coreBaseDir)/src
+
+PROJ_NAME      := arduino-core
+PROJ_TYPE      := lib
+PROJ_VERSION   := $(CORE_VERSION)
+BUILD_DIR_BASE := $(coreBaseDir)/build
+DIST_DIR_BASE  := $(coreBaseDir)/dist
+SRC_DIRS       += $(coreSrcDir)/cores/arduino
+INCLUDE_DIRS   += $(coreSrcDir)/variants/$(_variant) $(coreSrcDir)/cores
+BUILD_DEPS     += src-checkout
+POST_DIST_DEPS += $(foreach srcHeader, $(shell find $(coreSrcDir)/cores/arduino -type f -name *.h -or -name *.hpp), $(distDir)/$(defaultIncludeDir)/arduino/$(notdir $(srcHeader)))
+POST_DIST_DEPS += $(distDir)/$(defaultIncludeDir)/arduino/pins_arduino.h
+
+coreExists := $(wildcard $(coreSrcDir)/cores/arduino/Arduino.h)
+ifeq ($(coreExists), )
+    coreExists := 0
+else
+    coreExists := 1
+    coreTag := $(shell cd $(coreSrcDir) > /dev/null 2>&1; git describe --tags)
+endif
+
+ifeq ($(coreExists), 1)
+    SKIP_CORE_PRE_BUILD := 1
+    include ../project.mk
+else
+    ifeq ($(V), )
+        V := 0
+    endif
+    ifneq ($(V), 0)
+        ifneq ($(V), 1)
+            $(error ERROR: Invalid value for V: $(V))
+        endif
+    endif
+
+    ifeq ($(V), 0)
+        v  := @
+        nl :=
+    else
+        v  :=
+        nl := \n
+    endif
+    .DEFAULT_GOAL := src-checkout
+endif
+
+# BUILD_DEPS ===================================================================
+$(coreSrcDir)/.git/index:
+	@printf "$(nl)[GIT] clone $(CORE_REPO)\n"
+	@mkdir -p $(coreBaseDir)
+	$(v)git clone -q $(CORE_REPO) $(coreSrcDir)
+
+.PHONY: src-checkout
+src-checkout: $(coreSrcDir)/.git/index
+    ifneq ($(coreTag), $(CORE_VERSION))
+	    @printf "$(nl)[GIT] checkout $(CORE_VERSION)\n"
+        ifneq ($(shell cd $(coreSrcDir) > /dev/null 2>&1; git checkout $(CORE_VERSION) > /dev/null 2>&1; echo $$?), 0)
+	        $(v)cd $(coreSrcDir); git fetch -q
+	        $(v)cd $(coreSrcDir); git checkout -q $(CORE_VERSION)
+        endif
+        ifeq ($(coreExists), 0)
+	        $(v)$(MAKE) -f $(thisFile) CORE_VERSION=$(CORE_VERSION)
+        endif
+    endif
+# ==============================================================================
+
+# POST_DIST_DEPS ===============================================================
+$(distDir)/$(defaultIncludeDir)/arduino/%.h : $(coreSrcDir)/cores/arduino/%.h
+	@printf "$(nl)[DIST] $@\n"
+	@mkdir -p $(dir $@)
+	$(v)ln $< $@
+
+$(distDir)/$(defaultIncludeDir)/arduino/pins_arduino.h : $(coreSrcDir)/variants/$(_variant)/pins_arduino.h
+	@printf "$(nl)[DIST] $@\n"
+	@mkdir -p $(dir $@)
+	$(v)ln $< $@
+# ==============================================================================
+
