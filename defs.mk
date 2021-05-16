@@ -18,8 +18,14 @@
 ifndef _include_arduino_defs_mk
 _include_arduino_defs_mk := 1
 
-__arduino_defs_mk_dir := $(dir $(lastword $(MAKEFILE_LIST)))
+# ------------------------------------------------------------------------------
+ifeq ($(_arduino_project_mk_dir), )
+    $(error project.mk not included yet)
+endif
+include $(_arduino_project_mk_dir)gcc-project/functions.mk
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 ifneq ($(LIB_TYPE), )
     ifneq ($(LIB_TYPE), static)
         $(error Invalid LIB_TYPE: $(LIB_TYPE))
@@ -27,38 +33,37 @@ ifneq ($(LIB_TYPE), )
 else
     LIB_TYPE := static
 endif
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 ifneq ($(HOST), )
-    ifeq ($(shell echo $(HOST) | grep -oP '[a-zA-Z0-9]+\-[a-zA-Z0-9]+.*'), )
+    ifeq ($(call fn_host_valid, $(HOST)), 0)
         $(error Invalid HOST: $(HOST))
     endif
-    hostOS := $(shell echo $(HOST) | cut -d'-' -f1)
+    hostOS := $(call fn_host_os, $(HOST))
     ifneq ($(hostOS), arduino)
-        $(error Invalid HOST: $(HOST))
+        $(error Invalid HOST OS: $(hostOS))
     endif
-    BOARD := $(shell echo $(HOST) | cut -d'-' -f2-)
+    hostArch := $(call fn_host_arch, $(HOST))
+    BOARD := $(hostArch)
 else
     hostOS := arduino
     ifeq ($(BOARD), )
-        BOARD := unknown
+        hostArch := uno
         PRE_BUILD += @echo "Missing BOARD"; exit 1;
+    else
+        hostArch := $(BOARD)
     endif
-    HOST := arduino-$(BOARD)
+    BOARD := $(hostArch)
+    HOST  := arduino-$(BOARD)
 endif
+# ------------------------------------------------------------------------------
 
-ifeq ($(BUILD_DIR_NAME), )
-    BUILD_DIR_NAME := $(BOARD)
-endif
+# ------------------------------------------------------------------------------
+HOSTS_DIR := ../boards
+# ------------------------------------------------------------------------------
 
-ifeq ($(DIST_DIR_NAME), )
-    DIST_DIR_NAME := $(BOARD)
-endif
-
-OS_DIR := ../boards
-
-include $(__arduino_defs_mk_dir)gcc-project/defs.mk
-
-undefine __arduino_defs_mk_dir
+include $(_arduino_project_mk_dir)gcc-project/project.mk
 
 endif #_include_arduino_defs_mk
 

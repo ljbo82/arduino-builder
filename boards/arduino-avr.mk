@@ -18,34 +18,60 @@
 ifndef _include_arduino_boards_arduino_avr_mk
 _include_arduino_boards_arduino_avr_mk := 1
 
+# ------------------------------------------------------------------------------
+ifeq ($(_arduino_project_mk_dir), )
+    $(error project.mk not included yet)
+endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+ifeq ($(HOST), arduino-avr)
+    $(error Generic HOST cannot be selected: arduino-avr)
+endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 ifeq ($(SKIP_CORE_PRE_BUILD), )
     SKIP_CORE_PRE_BUILD := 0
 endif
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 ifeq ($(CORE_VERSION), )
     CORE_VERSION := 1.8.3
 endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 coreDirBase := $(_arduino_project_mk_dir)cores/avr
 coreLib := arduino-core$(shell echo $(CORE_VERSION) | cut -d'.' -f1)
 ifeq ($(DEBUG), 1)
     __debugSuffix := _d
     coreLib       := $(coreLib)$(__debugSuffix)
 endif
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 ifeq ($(SKIP_CORE_PRE_BUILD), 0)
-    BUILD_DEPS   += $(coreDirBase)/dist/$(BOARD)/lib/lib$(coreLib).a
-    INCLUDE_DIRS += $(coreDirBase)/dist/$(BOARD)/$(defaultIncludeDir)
-    LDFLAGS      += -L$(coreDirBase)/dist/$(BOARD)/lib -l$(coreLib) -lm
+    BUILD_DEPS   += $(coreDirBase)/dist/$(HOST)/lib/lib$(coreLib).a
+    INCLUDE_DIRS += $(coreDirBase)/dist/$(HOST)/$(defaultIncludeDir)
+    LDFLAGS      += -L$(coreDirBase)/dist/$(HOST)/lib -l$(coreLib) -lm
 endif
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 CROSS_COMPILE := avr-
 AS            := gcc
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 CFLAGS   += -Os -std=gnu11 -ffunction-sections -fdata-sections
 CXXFLAGS += -Os -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing
 ASFLAGS  += -x assembler-with-cpp
 LDFLAGS  += -Os -Wl,--gc-sections
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 ifeq ($(PROJ_TYPE), app)
     artifactName    := $(PROJ_NAME)$(projVersionMajor)$(__debugSuffix).bin
     hexArtifactName := $(basename $(artifactName)).hex
@@ -60,14 +86,17 @@ ifeq ($(PROJ_TYPE), app)
 else
     artifactName := lib$(PROJ_NAME)$(projVersionMajor)$(__debugSuffix).a
 endif
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
 CFLAGS   += -mmcu=$(_mcu) -DF_CPU=$(_fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(_board) -DARDUINO_ARCH_$(_arch)
 CXXFLAGS += -mmcu=$(_mcu) -DF_CPU=$(_fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(_board) -DARDUINO_ARCH_$(_arch)
 ASFLAGS  += -mmcu=$(_mcu) -DF_CPU=$(_fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(_board) -DARDUINO_ARCH_$(_arch)
+# ------------------------------------------------------------------------------
 
 # BUILD_DEPS ===================================================================
 ifeq ($(SKIP_CORE_PRE_BUILD), 0)
-$(coreDirBase)/dist/$(BOARD)/lib/lib$(coreLib).a:
+$(coreDirBase)/dist/$(HOST)/lib/lib$(coreLib).a:
 	@printf "$(nl)[BUILD] $@\n"
 	@rm -f $(buildDir)/$(artifactName) $(distDir)/bin/$(artifactName)
 	$(v)cd $(_arduino_project_mk_dir)cores; $(MAKE) -f avr.mk CORE_VERSION=$(CORE_VERSION)

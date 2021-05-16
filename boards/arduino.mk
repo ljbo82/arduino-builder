@@ -18,14 +18,19 @@
 ifndef _include_arduino_boards_arduino_mk
 _include_arduino_boards_arduino_mk := 1
 
-_boardsDir := $(_arduino_project_mk_dir)$(notdir $(OS_DIR))
+# ------------------------------------------------------------------------------
+ifeq ($(_arduino_project_mk_dir), )
+    $(error project.mk not included yet)
+endif
+# ------------------------------------------------------------------------------
 
-ifneq ($(wildcard $(_boardsDir)/$(BOARD).mk), )
-    include $(_boardsDir)/$(BOARD).mk
+# ------------------------------------------------------------------------------
+ifneq ($(wildcard $(_arduino_project_mk_dir)boards/$(BOARD).mk), )
+    include $(_arduino_project_mk_dir)boards/$(BOARD).mk
 else
     $(error Unsupported BOARD: $(BOARD))
 endif
-
+# ------------------------------------------------------------------------------
 
 endif # _include_arduino_boards_arduino_mk
 

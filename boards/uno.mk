@@ -18,13 +18,21 @@
 ifndef _include_arduino_boards_uno_mk
 _include_arduino_boards_uno_mk := 1
 
+# ------------------------------------------------------------------------------
+ifeq ($(_arduino_project_mk_dir), )
+    $(error project.mk not included yet)
+endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 _mcu     := atmega328p
 _fcpu    := 16000000L
 _board   := AVR_UNO
 _arch    := AVR
 _variant := standard
+# ------------------------------------------------------------------------------
 
-include $(_boardsDir)/arduino-avr.mk
+include $(_arduino_project_mk_dir)boards/arduino-avr.mk
 
 endif # _include_arduino_boards_uno_mk
 

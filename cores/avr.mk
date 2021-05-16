@@ -35,8 +35,8 @@ DIST_DIR_BASE  := $(coreBaseDir)/dist
 SRC_DIRS       += $(coreSrcDir)/cores/arduino
 INCLUDE_DIRS   += $(coreSrcDir)/variants/$(_variant) $(coreSrcDir)/cores
 BUILD_DEPS     += src-checkout
-POST_DIST_DEPS += $(foreach srcHeader, $(shell find $(coreSrcDir)/cores/arduino -type f -name *.h -or -name *.hpp), $(distDir)/$(defaultIncludeDir)/arduino/$(notdir $(srcHeader)))
-POST_DIST_DEPS += $(distDir)/$(defaultIncludeDir)/arduino/pins_arduino.h
+POST_DIST_DEPS += $(foreach srcHeader, $(shell find $(coreSrcDir)/cores/arduino -type f -name *.h -or -name *.hpp), $(distDir)/$(defaultIncludeDir)/$(notdir $(srcHeader)))
+POST_DIST_DEPS += $(distDir)/$(defaultIncludeDir)/pins_arduino.h
 
 coreExists := $(wildcard $(coreSrcDir)/cores/arduino/Arduino.h)
 ifeq ($(coreExists), )
@@ -90,12 +90,12 @@ src-checkout: $(coreSrcDir)/.git/index
 # ==============================================================================
 
 # POST_DIST_DEPS ===============================================================
-$(distDir)/$(defaultIncludeDir)/arduino/%.h : $(coreSrcDir)/cores/arduino/%.h
+$(distDir)/$(defaultIncludeDir)/%.h : $(coreSrcDir)/cores/arduino/%.h
 	@printf "$(nl)[DIST] $@\n"
 	@mkdir -p $(dir $@)
 	$(v)ln $< $@
 
-$(distDir)/$(defaultIncludeDir)/arduino/pins_arduino.h : $(coreSrcDir)/variants/$(_variant)/pins_arduino.h
+$(distDir)/$(defaultIncludeDir)/pins_arduino.h : $(coreSrcDir)/variants/$(_variant)/pins_arduino.h
 	@printf "$(nl)[DIST] $@\n"
 	@mkdir -p $(dir $@)
 	$(v)ln $< $@

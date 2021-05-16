@@ -16,7 +16,7 @@
     along with arduino-gcc-project-builder.  If not, 
     see <https://www.gnu.org/licenses/>
 */
-#include <arduino/Arduino.h>
+#include <Arduino.h>
 
 void setup() {
 	pinMode(LED_BUILTIN, OUTPUT);
