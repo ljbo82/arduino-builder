@@ -26,7 +26,7 @@ endif
 
 # ------------------------------------------------------------------------------
 ifeq ($(HOST), arduino-avr)
-    $(error Generic HOST cannot be selected: arduino-avr)
+    $(error Generic HOST 'arduino-avr' cannot be selected)
 endif
 # ------------------------------------------------------------------------------
 
@@ -43,8 +43,15 @@ endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
+include $(_arduino_project_mk_dir)gcc-project/functions.mk
+ifeq ($(call fn_version_valid, $(CORE_VERSION)), 0)
+    $(error Invalid CORE_VERSION: $(CORE_VERSION))
+endif
 coreDirBase := $(_arduino_project_mk_dir)cores/avr
-coreLib := arduino-core$(shell echo $(CORE_VERSION) | cut -d'.' -f1)
+coreLib     := arduino-core$(call fn_version_major, $(CORE_VERSION))
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 ifeq ($(DEBUG), 1)
     __debugSuffix := _d
     coreLib       := $(coreLib)$(__debugSuffix)
@@ -125,6 +132,9 @@ flash: dist
     endif
     ifeq ($(PORT), )
 	    $(error Missing PORT)
+    endif
+    ifeq ($(shell avrdude -? > /dev/null 2>&1 && echo 1 || echo 0), 0)
+	    $(error avrdude is not in PATH)
     endif
 	@printf "$(nl)[FLASH] $(distDir)/bin/$(hexArtifactName)\n"
 	$(v)avrdude -C/etc/avrdude.conf -v -p$(_mcu) -carduino -P$(PORT) -Uflash:w:$(distDir)/bin/$(hexArtifactName):i

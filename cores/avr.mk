@@ -26,6 +26,7 @@ endif
 thisFile    := $(lastword $(MAKEFILE_LIST))
 coreBaseDir := avr
 coreSrcDir  := $(coreBaseDir)/src
+fn_path_get_level = $(shell sh -c "echo $(1) | cut -d'/' -f$(2)-")
 
 PROJ_NAME      := arduino-core
 PROJ_TYPE      := lib
@@ -33,10 +34,12 @@ PROJ_VERSION   := $(CORE_VERSION)
 BUILD_DIR_BASE := $(coreBaseDir)/build
 DIST_DIR_BASE  := $(coreBaseDir)/dist
 SRC_DIRS       += $(coreSrcDir)/cores/arduino
+SRC_DIRS       += $(foreach library, $(shell find $(coreSrcDir)/libraries -maxdepth 1 -type d -path '$(coreSrcDir)/libraries/*'), $(library)/src)
 INCLUDE_DIRS   += $(coreSrcDir)/variants/$(_variant) $(coreSrcDir)/cores
 BUILD_DEPS     += src-checkout
-POST_DIST_DEPS += $(foreach srcHeader, $(shell find $(coreSrcDir)/cores/arduino -type f -name *.h -or -name *.hpp), $(distDir)/$(defaultIncludeDir)/$(notdir $(srcHeader)))
+POST_DIST_DEPS += $(foreach srcHeader, $(shell find $(coreSrcDir)/cores/arduino -type f -name '*.h' -and ! \( -name '*_private.h' \)), $(distDir)/$(defaultIncludeDir)/$(notdir $(srcHeader)))
 POST_DIST_DEPS += $(distDir)/$(defaultIncludeDir)/pins_arduino.h
+POST_DIST_DEPS += $(foreach libHeader, $(shell find $(coreSrcDir)/libraries -type f -name '*.h'), $(distDir)/$(defaultIncludeDir)/$(call fn_path_get_level, $(libHeader), 6))
 
 coreExists := $(wildcard $(coreSrcDir)/cores/arduino/Arduino.h)
 ifeq ($(coreExists), )
@@ -47,9 +50,11 @@ else
 endif
 
 ifeq ($(coreExists), 1)
+    # If core source is present, enables standard build targets
     SKIP_CORE_PRE_BUILD := 1
     include ../project.mk
 else
+    # If core' source is not present offers only 'src-checkout' target
     ifeq ($(V), )
         V := 0
     endif
@@ -91,6 +96,11 @@ src-checkout: $(coreSrcDir)/.git/index
 
 # POST_DIST_DEPS ===============================================================
 $(distDir)/$(defaultIncludeDir)/%.h : $(coreSrcDir)/cores/arduino/%.h
+	@printf "$(nl)[DIST] $@\n"
+	@mkdir -p $(dir $@)
+	$(v)ln $< $@
+
+$(distDir)/$(defaultIncludeDir)/%.h : $(coreSrcDir)/libraries/*/src/%.h
 	@printf "$(nl)[DIST] $@\n"
 	@mkdir -p $(dir $@)
 	$(v)ln $< $@

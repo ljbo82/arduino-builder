@@ -21,7 +21,6 @@ _include_arduino_project_mk := 1
 # ------------------------------------------------------------------------------
 _arduino_project_mk_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 include $(_arduino_project_mk_dir)defs.mk
-undefine _arduino_project_mk_dir
 # ------------------------------------------------------------------------------
 
 endif # _include_arduino_project_mk
