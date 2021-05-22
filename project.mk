@@ -61,7 +61,7 @@ endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-defaultEnforceArduinoOnly := 0
+defaultEnforceArduinoOnly := 1
 ifeq ($(ENFORCE_ARDUINO_ONLY), )
     ENFORCE_ARDUINO_ONLY := $(defaultEnforceArduinoOnly)
 endif
@@ -88,45 +88,106 @@ ifeq ($(hostOS), arduino)
     else
         LIB_TYPE := static
     endif
+endif
+# ------------------------------------------------------------------------------
 
-    defaultBoardsDir := boards
-    ifeq ($(BOARDS_DIR), )
-        BOARDS_DIR := $(defaultBoardsDir)
-    endif
-
-    ifeq ($(BOARD_MK), )
-        ifneq ($(wildcard $(BOARDS_DIR)/$(BOARD).mk), )
-            BOARD_MK := $(BOARDS_DIR)/$(BOARD).mk
+# ------------------------------------------------------------------------------
+ifeq ($(hostOS), arduino)
+    ifneq ($(HOSTS_DIR), )
+        # Supplied HOST_DIR
+        ifneq ($(BOARDS_DIR), )
+            # Supplied BOARDS_DIR
+            ifneq ($(HOSTS_DIR), $(BOARDS_DIR))
+                $(error Distinct values for HOSTS_DIR ($(HOSTS_DIR)) and BOARDS_DIR ($(BOARDS_DIR)))
+            endif
         else
-            BOARD_MK :=
+            # BOARDS_DIR not supplied
+            BOARDS_DIR := $(HOSTS_DIR)
         endif
     else
-        ifeq ($(wildcard $(BOARD_MK)), )
-            $(error [BOARD_MK] No such file: $(BOARD_MK))
+        # HOST_DIR not supplied
+        defaultBoardsDir := boards
+        ifeq ($(BOARDS_DIR), )
+            BOARDS_DIR := $(defaultBoardsDir)
         endif
+        HOSTS_DIR := $(BOARDS_DIR)
     endif
+endif
+# ------------------------------------------------------------------------------
 
-    ifeq ($(BUILDER_BOARD_MK), )
-        ifneq ($(wildcard $(_arduino_project_mk_dir)$(defaultBoardsDir)/$(BOARD).mk), )
-            BUILDER_BOARD_MK := $(_arduino_project_mk_dir)$(defaultBoardsDir)/$(BOARD).mk
+# ------------------------------------------------------------------------------
+ifeq ($(hostOS), arduino)
+    ifneq ($(HOST_MK), )
+        # Supplied HOST_MK
+        ifneq ($(BOARD_MK), )
+            # Supplied BOARD_MK
+            ifneq ($(HOST_MK), $(BOARD_MK))
+                $(error Distinct values for HOST_MK ($(HOST_MK)) and BOARD_MK ($(BOARD_MK)))
+            endif
         else
-            BUILDER_BOARD_MK :=
+            # BOARD_MK not supplied
+            BOARD_MK := $(HOST_MK)
         endif
     else
-        ifeq ($(wildcard $(BUILDER_BOARD_MK)), )
-            $(error [BUILDER_BOARD_MK] No such file: $(BUILDER_BOARD_MK))
+        # HOST_MK not supplied
+        ifeq ($(BOARD_MK), )
+            # BOARD_MK not supplied
+            ifneq ($(wildcard $(BOARDS_DIR)/$(BOARD).mk), )
+                BOARD_MK := $(BOARDS_DIR)/$(BOARD).mk
+            else
+                BOARD_MK :=
+            endif
+        else
+            # Supplied BOARD_MK
+            ifeq ($(wildcard $(BOARD_MK)), )
+                $(error [BOARD_MK] No such file: $(BOARD_MK))
+            endif
         endif
+        HOST_MK := $(BOARD_MK)
     endif
+endif
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
+ifeq ($(hostOS), arduino)
+    ifneq ($(BUILDER_HOST_MK), )
+        # Supplied BUILDER_HOST_MK
+        ifneq ($(BUILDER_BOARD_MK), )
+            # Supplied BUILDER_BOARD_MK
+            ifneq ($(BUILDER_HOST_MK), $(BUILDER_BOARD_MK))
+                $(error Distinct values for BUILDER_HOST_MK ($(BUILDER_HOST_MK)) and BUILDER_BOARD_MK ($(BUILDER_BOARD_MK)))
+            endif
+        else
+            # BUILDER_BOARD_MK not supplied
+            BUILDER_BOARD_MK := $(BUILDER_HOST_MK)
+        endif
+    else
+        # BUILDER_HOST_MK not supplied
+        ifeq ($(BUILDER_BOARD_MK), )
+            # BUILDER_BOARD_MK not supplied
+            ifneq ($(wildcard $(_arduino_project_mk_dir)$(defaultBoardsDir)/$(BOARD).mk), )
+                BUILDER_BOARD_MK := $(_arduino_project_mk_dir)$(defaultBoardsDir)/$(BOARD).mk
+            else
+                BUILDER_BOARD_MK :=
+            endif
+        else
+            # Supplied BUILDER_BOARD_MK
+            ifeq ($(wildcard $(BUILDER_BOARD_MK)), )
+                $(error [BUILDER_BOARD_MK] No such file: $(BUILDER_BOARD_MK))
+            endif
+        endif
+        BUILDER_HOST_MK := $(BUILDER_BOARD_MK)
+    endif
+endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+ifeq ($(hostOS), arduino)
     ifeq ($(BOARD_MK), )
         ifeq ($(BUILDER_BOARD_MK), )
             $(error Unsupported BOARD: $(BOARD))
         endif
     endif
-
-    HOSTS_DIR       := $(BOARDS_DIR)
-    HOST_MK         := $(BOARD_MK)
-    BUILDER_HOST_MK := $(BUILDER_BOARD_MK)
 endif
 # ------------------------------------------------------------------------------
 
