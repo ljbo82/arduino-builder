@@ -93,6 +93,7 @@ endif
 
 # ------------------------------------------------------------------------------
 ifeq ($(hostOS), arduino)
+    defaultBoardsDir := boards
     ifneq ($(HOSTS_DIR), )
         # Supplied HOST_DIR
         ifneq ($(BOARDS_DIR), )
@@ -106,7 +107,6 @@ ifeq ($(hostOS), arduino)
         endif
     else
         # HOST_DIR not supplied
-        defaultBoardsDir := boards
         ifeq ($(BOARDS_DIR), )
             BOARDS_DIR := $(defaultBoardsDir)
         endif
