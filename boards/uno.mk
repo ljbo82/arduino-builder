@@ -32,7 +32,7 @@ _arch    := AVR
 _variant := standard
 # ------------------------------------------------------------------------------
 
-include $(_arduino_project_mk_dir)boards/arduino-avr.mk
+include $(_arduino_project_mk_dir)$(defaultBoardsDir)/arduino-avr.mk
 
 endif # _include_arduino_boards_uno_mk
 

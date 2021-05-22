@@ -23,60 +23,77 @@ _arduino_project_mk_dir := $(dir $(lastword $(MAKEFILE_LIST)))
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-ifneq ($(LIB_TYPE), )
-    ifneq ($(LIB_TYPE), static)
-        $(error Invalid LIB_TYPE: $(LIB_TYPE))
-    endif
-else
-    LIB_TYPE := static
-endif
+gcc_project_builder_dir := gcc-builder
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-include $(_arduino_project_mk_dir)gcc-project/functions.mk
+include $(_arduino_project_mk_dir)$(gcc_project_builder_dir)/functions.mk
 ifneq ($(HOST), )
     ifeq ($(call fn_host_valid, $(HOST)), 0)
         $(error Invalid HOST: $(HOST))
     endif
+
     hostOS := $(call fn_host_os, $(HOST))
-    ifneq ($(hostOS), arduino)
-        $(error Invalid HOST OS: $(hostOS))
-    endif
     hostArch := $(call fn_host_arch, $(HOST))
-    BOARD := $(hostArch)
-else
-    hostOS := arduino
-    ifeq ($(BOARD), )
-        hostArch := uno
-        PRE_BUILD += @echo "Missing BOARD"; exit 1;
+
+    ifeq ($(hostOS), arduino)
+        ifneq ($(BOARD), )
+            # [Example] HOST=arduino-uno BOARD=leonardo
+            ifneq ($(BOARD), $(hostArch))
+                $(error HOST ($(HOST)) is not compatible with BOARD ($(BOARD)))
+            endif
+        else
+            BOARD := $(hostArch)
+        endif
     else
-        hostArch := $(BOARD)
-    endif
-    BOARD := $(hostArch)
-    HOST  := arduino-$(BOARD)
-endif
-# ------------------------------------------------------------------------------
-
-# ------------------------------------------------------------------------------
-defaultBoardsDir := boards
-ifeq ($(BOARDS_DIR), )
-    BOARDS_DIR := $(defaultBoardsDir)
-endif
-# ------------------------------------------------------------------------------
-
-# ------------------------------------------------------------------------------
-defaultSkipBoardMk := 0
-ifeq ($(SKIP_BOARD_MK), )
-    SKIP_BOARD_MK := $(defaultSkipBoardMk)
-else
-    ifneq ($(SKIP_BOARD_MK), 0)
-        ifneq ($(SKIP_BOARD_MK), 1)
-            $(error Invalid value for SKIP_BOARD_MK: $(SKIP_BOARD_MK))
+        # [Example] HOST=linux-x86 BOARD=uno
+        ifneq ($(BOARD), )
+            $(error HOST ($(HOST)) is not compatible with BOARD ($(BOARD)))
         endif
     endif
+else
+    ifneq ($(BOARD), )
+        hostOS   := arduino
+        hostArch := $(BOARD)
+        HOST     := $(hostOS)-$(hostArch)
+    endif
+endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+defaultEnforceArduinoOnly := 0
+ifeq ($(ENFORCE_ARDUINO_ONLY), )
+    ENFORCE_ARDUINO_ONLY := $(defaultEnforceArduinoOnly)
 endif
 
-ifeq ($(SKIP_BOARD_MK), 0)
+ifneq ($(ENFORCE_ARDUINO_ONLY), 0)
+    ifneq ($(ENFORCE_ARDUINO_ONLY), 1)
+        $(error Invalid value for ENFORCE_ARDUINO_ONLY: $(ENFORCE_ARDUINO_ONLY))
+    endif
+endif
+
+ifeq ($(ENFORCE_ARDUINO_ONLY), 1)
+    ifeq ($(BOARD), )
+        PRE_BUILD_DEPS += arduino-missing-board
+    endif
+endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+ifeq ($(hostOS), arduino)
+    ifneq ($(LIB_TYPE), )
+        ifneq ($(LIB_TYPE), static)
+            $(error Invalid LIB_TYPE: $(LIB_TYPE))
+        endif
+    else
+        LIB_TYPE := static
+    endif
+
+    defaultBoardsDir := boards
+    ifeq ($(BOARDS_DIR), )
+        BOARDS_DIR := $(defaultBoardsDir)
+    endif
+
     ifeq ($(BOARD_MK), )
         ifneq ($(wildcard $(BOARDS_DIR)/$(BOARD).mk), )
             BOARD_MK := $(BOARDS_DIR)/$(BOARD).mk
@@ -88,24 +105,7 @@ ifeq ($(SKIP_BOARD_MK), 0)
             $(error [BOARD_MK] No such file: $(BOARD_MK))
         endif
     endif
-else
-    BOARD_MK :=
-endif
-# ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-defaultSkipBuilderBoardMk := 0
-ifeq ($(SKIP_BUILDER_BOARD_MK), )
-    SKIP_BUILDER_BOARD_MK := $(defaultSkipBuilderBoardMk)
-else
-    ifneq ($(SKIP_BUILDER_BOARD_MK), 0)
-        ifneq ($(SKIP_BUILDER_BOARD_MK), 1)
-            $(error Invalid value for SKIP_BUILDER_BOARD_MK: $(SKIP_BUILDER_BOARD_MK))
-        endif
-    endif
-endif
-
-ifeq ($(SKIP_BUILDER_BOARD_MK), 0)
     ifeq ($(BUILDER_BOARD_MK), )
         ifneq ($(wildcard $(_arduino_project_mk_dir)$(defaultBoardsDir)/$(BOARD).mk), )
             BUILDER_BOARD_MK := $(_arduino_project_mk_dir)$(defaultBoardsDir)/$(BOARD).mk
@@ -117,28 +117,32 @@ ifeq ($(SKIP_BUILDER_BOARD_MK), 0)
             $(error [BUILDER_BOARD_MK] No such file: $(BUILDER_BOARD_MK))
         endif
     endif
-else
-    BUILDER_BOARD_MK :=
-endif
-# ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-ifeq ($(BOARD_MK), )
-    ifeq ($(BUILDER_BOARD_MK), )
-        $(error Unsupported BOARD: $(BOARD))
+    ifeq ($(BOARD_MK), )
+        ifeq ($(BUILDER_BOARD_MK), )
+            $(error Unsupported BOARD: $(BOARD))
+        endif
     endif
+
+    HOSTS_DIR       := $(BOARDS_DIR)
+    HOST_MK         := $(BOARD_MK)
+    BUILDER_HOST_MK := $(BUILDER_BOARD_MK)
 endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-HOSTS_DIR       := $(BOARDS_DIR)
-HOST_MK         := $(BOARD_MK)
-BUILDER_HOST_MK := $(BUILDER_BOARD_MK)
+include $(_arduino_project_mk_dir)$(gcc_project_builder_dir)/project.mk
 # ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
-include $(_arduino_project_mk_dir)gcc-project/project.mk
-# ------------------------------------------------------------------------------
+# ==============================================================================
+ifeq ($(ENFORCE_ARDUINO_ONLY), 1)
+ifeq ($(BOARD), )
+.PHONY: arduino-missing-board
+arduino-missing-board:
+	$(error "Missing BOARD")
+endif
+endif
+# ==============================================================================
 
 endif # _include_arduino_project_mk
 

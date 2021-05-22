@@ -15,8 +15,9 @@
 # along with arduino-gcc-project-builder.  If not, 
 # see <https://www.gnu.org/licenses/>
 
-PROJ_NAME    := blink
-PROJ_TYPE    := app
-PROJ_VERSION := 0.1.0
+PROJ_NAME            := blink
+PROJ_TYPE            := app
+PROJ_VERSION         := 0.1.0
+ENFORCE_ARDUINO_ONLY := 1
 
 include ../../project.mk

@@ -25,6 +25,12 @@ endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
+ifeq ($(BOARD), $(basename $(notdir $(lastword $(MAKEFILE_LIST)))))
+    $(error Unsupported BOARD: $(BOARD))
+endif
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 ifeq ($(SKIP_CORE_PRE_BUILD), )
     SKIP_CORE_PRE_BUILD := 0
 endif
@@ -37,7 +43,7 @@ endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-include $(_arduino_project_mk_dir)gcc-project/functions.mk
+include $(_arduino_project_mk_dir)$(gcc_project_builder_dir)/functions.mk
 ifeq ($(call fn_version_valid, $(CORE_VERSION)), 0)
     $(error Invalid CORE_VERSION: $(CORE_VERSION))
 endif
@@ -105,25 +111,27 @@ endif
 # ==============================================================================
 
 # POST_BUILD_DEPS ==============================================================
+ifeq ($(PROJ_TYPE), app)
 $(buildDir)/$(hexArtifactName): $(buildDir)/$(artifactName)
 	@printf "$(nl)[HEX] $@\n"
 	@mkdir -p $(dir $@)
 	$(v)avr-objcopy -O ihex -R .eeprom $< $@
+endif
 # ==============================================================================
 
-# POST_DIST_DEPS ==============================================================
+# POST_DIST_DEPS ===============================================================
+ifeq ($(PROJ_TYPE), app)
 $(distDir)/bin/$(hexArtifactName): $(buildDir)/$(hexArtifactName)
 	@printf "$(nl)[DIST] $@\n"
 	@mkdir -p $(dir $@)
 	$(v)ln -f $< $@
+endif
 # ==============================================================================
 
 # ==============================================================================
+ifeq ($(PROJ_TYPE), app)
 .PHONY: flash
 flash: dist
-    ifeq ($(PROJ_TYPE), lib)
-	    $(error Flash does not apply to a library)
-    endif
     ifeq ($(PORT), )
 	    $(error Missing PORT)
     endif
@@ -132,6 +140,7 @@ flash: dist
     endif
 	@printf "$(nl)[FLASH] $(distDir)/bin/$(hexArtifactName)\n"
 	$(v)avrdude -C/etc/avrdude.conf -v -p$(_mcu) -carduino -P$(PORT) -Uflash:w:$(distDir)/bin/$(hexArtifactName):i
+endif
 # ==============================================================================
 
 endif # _include_arduino_boards_arduino_avr_mk
