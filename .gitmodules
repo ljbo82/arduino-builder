@@ -1,3 +1,3 @@
-[submodule "gcc-project"]
+[submodule "gcc-builder"]
 	path = gcc-builder
 	url = https://github.com/ljbo82/gcc-project-builder.git
