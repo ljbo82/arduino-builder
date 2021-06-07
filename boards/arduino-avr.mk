@@ -34,35 +34,39 @@ endif
 ifeq ($(SKIP_CORE_PRE_BUILD), )
     SKIP_CORE_PRE_BUILD := 0
 endif
+
+ifneq ($(SKIP_CORE_PRE_BUILD), 0)
+    ifneq ($(SKIP_CORE_PRE_BUILD), 1)
+        $(error Invalid value for SKIP_CORE_PRE_BUILD: $(SKIP_CORE_PRE_BUILD))
+    endif
+endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 ifeq ($(CORE_VERSION), )
     CORE_VERSION := 1.8.3
 endif
-# ------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------
 include $(_arduino_project_mk_dir)$(gcc_project_builder_dir)/functions.mk
+
 ifeq ($(call fn_version_valid, $(CORE_VERSION)), 0)
     $(error Invalid CORE_VERSION: $(CORE_VERSION))
 endif
-coreDirBase := $(_arduino_project_mk_dir)cores/avr
-coreLib     := arduino-core$(call fn_version_major, $(CORE_VERSION))
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
+coreLibDir  := $(_arduino_project_mk_dir)cores/avr/output
+coreLibName := arduino-core$(call fn_version_major, $(CORE_VERSION))
 ifeq ($(DEBUG), 1)
-    __debugSuffix := _d
-    coreLib       := $(coreLib)$(__debugSuffix)
+    coreLibName := $(coreLibName)_d
 endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 ifeq ($(SKIP_CORE_PRE_BUILD), 0)
-    BUILD_DEPS   += $(coreDirBase)/dist/$(HOST)/lib/lib$(coreLib).a
-    INCLUDE_DIRS += $(coreDirBase)/dist/$(HOST)/$(defaultIncludeDir)
-    LDFLAGS      += -L$(coreDirBase)/dist/$(HOST)/lib -l$(coreLib) -lm
+    BUILD_DEPS   += $(coreLibDir)/dist/$(HOST)/lib/lib$(coreLibName).a
+    INCLUDE_DIRS += $(coreLibDir)/dist/$(HOST)/$(defaultIncludeDir)
+    LDFLAGS      += -L$(coreLibDir)/dist/$(HOST)/lib -l$(coreLibName) -lm
 endif
 # ------------------------------------------------------------------------------
 
@@ -80,8 +84,8 @@ LDFLAGS  += -Os -Wl,--gc-sections
 
 # ------------------------------------------------------------------------------
 ifeq ($(PROJ_TYPE), app)
-    artifactName    := $(PROJ_NAME)$(projVersionMajor)$(__debugSuffix).bin
-    hexArtifactName := $(basename $(artifactName)).hex
+    ARTIFACT_NAME   := $(ARTIFACT_BASE_NAME).bin
+    hexArtifactName := $(basename $(ARTIFACT_NAME)).hex
 
     CFLAGS   += -flto -fno-fat-lto-objects
     CXXFLAGS += -flto
@@ -91,7 +95,7 @@ ifeq ($(PROJ_TYPE), app)
     POST_BUILD_DEPS += $(buildDir)/$(hexArtifactName)
     POST_DIST_DEPS  += $(distDir)/bin/$(hexArtifactName)
 else
-    artifactName := lib$(PROJ_NAME)$(projVersionMajor)$(__debugSuffix).a
+    ARTIFACT_NAME := lib$(ARTIFACT_BASE_NAME).a
 endif
 # ------------------------------------------------------------------------------
 
@@ -103,16 +107,16 @@ ASFLAGS  += -mmcu=$(_mcu) -DF_CPU=$(_fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$
 
 # BUILD_DEPS ===================================================================
 ifeq ($(SKIP_CORE_PRE_BUILD), 0)
-$(coreDirBase)/dist/$(HOST)/lib/lib$(coreLib).a:
+$(coreLibDir)/dist/$(HOST)/lib/lib$(coreLibName).a:
 	@printf "$(nl)[BUILD] $@\n"
-	@rm -f $(buildDir)/$(artifactName) $(distDir)/bin/$(artifactName)
-	$(v)cd $(_arduino_project_mk_dir)cores; $(MAKE) -f avr.mk CORE_VERSION=$(CORE_VERSION)
+	@rm -f $(buildDir)/$(ARTIFACT_NAME) $(distDir)/bin/$(ARTIFACT_NAME)
+	$(v)$(MAKE) -C $(_arduino_project_mk_dir)cores -f avr.mk CORE_VERSION=$(CORE_VERSION)
 endif
 # ==============================================================================
 
 # POST_BUILD_DEPS ==============================================================
 ifeq ($(PROJ_TYPE), app)
-$(buildDir)/$(hexArtifactName): $(buildDir)/$(artifactName)
+$(buildDir)/$(hexArtifactName): $(buildDir)/$(ARTIFACT_NAME)
 	@printf "$(nl)[HEX] $@\n"
 	@mkdir -p $(dir $@)
 	$(v)avr-objcopy -O ihex -R .eeprom $< $@
