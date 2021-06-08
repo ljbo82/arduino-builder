@@ -90,7 +90,7 @@ ifeq ($(PROJ_TYPE), app)
     CFLAGS   += -flto -fno-fat-lto-objects
     CXXFLAGS += -flto
     ASFLAGS  += -flto
-    LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(_mcu)
+    LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(mcu)
 
     POST_BUILD_DEPS += $(buildDir)/$(hexArtifactName)
     POST_DIST_DEPS  += $(distDir)/bin/$(hexArtifactName)
@@ -100,9 +100,9 @@ endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-CFLAGS   += -mmcu=$(_mcu) -DF_CPU=$(_fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(_board) -DARDUINO_ARCH_$(_arch)
-CXXFLAGS += -mmcu=$(_mcu) -DF_CPU=$(_fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(_board) -DARDUINO_ARCH_$(_arch)
-ASFLAGS  += -mmcu=$(_mcu) -DF_CPU=$(_fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(_board) -DARDUINO_ARCH_$(_arch)
+CFLAGS   += -mmcu=$(mcu) -DF_CPU=$(fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(board) -DARDUINO_ARCH_$(arch)
+CXXFLAGS += -mmcu=$(mcu) -DF_CPU=$(fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(board) -DARDUINO_ARCH_$(arch)
+ASFLAGS  += -mmcu=$(mcu) -DF_CPU=$(fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(board) -DARDUINO_ARCH_$(arch)
 # ------------------------------------------------------------------------------
 
 # BUILD_DEPS ===================================================================
@@ -143,7 +143,7 @@ flash: dist
 	    $(error avrdude is not in PATH)
     endif
 	@printf "$(nl)[FLASH] $(distDir)/bin/$(hexArtifactName)\n"
-	$(v)avrdude -C/etc/avrdude.conf -v -p$(_mcu) -carduino -P$(PORT) -Uflash:w:$(distDir)/bin/$(hexArtifactName):i
+	$(v)avrdude -C/etc/avrdude.conf -v -p$(mcu) -carduino -P$(PORT) -Uflash:w:$(distDir)/bin/$(hexArtifactName):i
 endif
 # ==============================================================================
 

@@ -25,11 +25,11 @@ endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-_mcu     := atmega328p
-_fcpu    := 16000000L
-_board   := AVR_UNO
-_arch    := AVR
-_variant := standard
+mcu     := atmega328p
+fcpu    := 16000000L
+board   := AVR_UNO
+arch    := AVR
+variant := standard
 # ------------------------------------------------------------------------------
 
 include $(_arduino_project_mk_dir)$(defaultBoardsDir)/arduino-avr.mk
