@@ -6,13 +6,13 @@
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
-# arduino-gcc-project-builder is distributed in the hope that it will be 
+# arduino-gcc-project-builder is distributed in the hope that it will be
 # useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with arduino-gcc-project-builder.  If not, 
+# along with arduino-gcc-project-builder.  If not,
 # see <https://www.gnu.org/licenses/>
 
 ifndef _include_arduino_boards_uno_mk
@@ -25,14 +25,13 @@ endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-mcu     := atmega328p
-fcpu    := 16000000L
-board   := AVR_UNO
-arch    := AVR
-variant := standard
+_MCU     := atmega328p
+_F_CPU   := 16000000L
+_BOARD   := AVR_UNO
+_ARCH    := AVR
+_VARIANT := standard
 # ------------------------------------------------------------------------------
 
 include $(_arduino_project_mk_dir)$(defaultBoardsDir)/arduino-avr.mk
 
 endif # _include_arduino_boards_uno_mk
-
