@@ -23,62 +23,48 @@ ifeq ($(CORE_VERSION),)
     CORE_VERSION := 1.8.3
 endif
 
-thisFile    := $(lastword $(MAKEFILE_LIST))
-coreBaseDir := avr
-coreSrcDir  := $(coreBaseDir)/src
+# ------------------------------------------------------------------------------
+PROJ_NAME           := arduino-core
+PROJ_TYPE           := lib
+PROJ_VERSION        := $(CORE_VERSION)
+SKIP_CORE_PRE_BUILD := 1
+# ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
+thisFile            := $(lastword $(MAKEFILE_LIST))
+coreBaseDir         := avr
+coreSrcDir          := $(coreBaseDir)/src
+O                   ?= $(coreBaseDir)/output
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
 fn_path_get_level = $(shell sh -c "echo $(1) | cut -d'/' -f$(2)-")
+# ------------------------------------------------------------------------------
 
-PROJ_NAME      := arduino-core
-PROJ_TYPE      := lib
-PROJ_VERSION   := $(CORE_VERSION)
-O              ?= $(coreBaseDir)/output
-SRC_DIRS       += $(coreSrcDir)/cores/arduino
-SRC_DIRS       += $(foreach library,$(shell find $(coreSrcDir)/libraries -maxdepth 1 -type d -path '$(coreSrcDir)/libraries/*'),$(library)/src)
-INCLUDE_DIRS   += $(coreSrcDir)/variants/$(_VARIANT) $(coreSrcDir)/cores
-PRE_BUILD_DEPS  += src-checkout
-POST_DIST_DEPS += $(foreach srcHeader,$(shell find $(coreSrcDir)/cores/arduino -type f -name '*.h' -and ! \( -name '*_private.h' \)),$(distDir)/$(defaultIncludeDir)/$(notdir $(srcHeader)))
-POST_DIST_DEPS += $(distDir)/$(defaultIncludeDir)/pins_arduino.h
-POST_DIST_DEPS += $(foreach libHeader,$(shell find $(coreSrcDir)/libraries -type f -name '*.h'),$(distDir)/$(defaultIncludeDir)/$(call fn_path_get_level,$(libHeader),6))
-
+# ------------------------------------------------------------------------------
 coreExists := $(wildcard $(coreSrcDir)/cores/arduino/Arduino.h)
-
 ifeq ($(coreExists),)
     coreExists := 0
 else
-    coreExists := 1
-    coreTag    := $(shell cd $(coreSrcDir) > /dev/null 2>&1; git describe --tags)
+    coreExists     := 1
+    coreTag        := $(shell cd $(coreSrcDir) > /dev/null 2>&1; git describe --tags)
+    SRC_DIRS       += $(coreSrcDir)/cores/arduino
+    SRC_DIRS       += $(foreach library,$(shell find $(coreSrcDir)/libraries -maxdepth 1 -type d -path '$(coreSrcDir)/libraries/*'),$(library)/src)
+    INCLUDE_DIRS   += $(coreSrcDir)/variants/$(_VARIANT) $(coreSrcDir)/cores
+    POST_DIST_DEPS += $(foreach srcHeader,$(shell find $(coreSrcDir)/cores/arduino -type f -name '*.h' -and ! \( -name '*_private.h' \)),$(distDir)/$(defaultIncludeDir)/$(notdir $(srcHeader)))
+    POST_DIST_DEPS += $(distDir)/$(defaultIncludeDir)/pins_arduino.h
+    POST_DIST_DEPS += $(foreach libHeader,$(shell find $(coreSrcDir)/libraries -type f -name '*.h'),$(distDir)/$(defaultIncludeDir)/$(call fn_path_get_level,$(libHeader),6))
+    LIBS           += m
 endif
+# ------------------------------------------------------------------------------
 
-ifeq ($(coreExists),1)
-    # If core source is present, enables standard build targets
-    SKIP_CORE_PRE_BUILD := 1
-    LIBS += m
-    include ../project.mk
-else
-    # If core' source is not present offers only 'src-checkout' target
-    ifeq ($(V),)
-        V := 0
-    endif
+# ------------------------------------------------------------------------------
+PRE_BUILD_DEPS += src-checkout
+# ------------------------------------------------------------------------------
 
-    ifneq ($(V),0)
-        ifneq ($(V),1)
-            $(error ERROR: Invalid value for V: $(V))
-        endif
-    endif
+include ../project.mk
 
-    ifeq ($(V),0)
-        v  := @
-        nl :=
-    else
-        v  :=
-        nl := \n
-    endif
-
-    .DEFAULT_GOAL := src-checkout
-endif
-
-# BUILD_DEPS ===================================================================
+# PRE_BUILD_DEPS ===============================================================
 $(coreSrcDir)/.git/index:
 	@printf "$(nl)[GIT] clone $(CORE_REPO)\n"
 	@mkdir -p $(coreBaseDir)
@@ -92,7 +78,7 @@ src-checkout: $(coreSrcDir)/.git/index
 	        $(v)cd $(coreSrcDir); git fetch -q
 	        $(v)cd $(coreSrcDir); git checkout -q $(CORE_VERSION)
         endif
-	    $(v)$(MAKE) -f $(thisFile) clean
+	    $(v)$(MAKE) -f $(thisFile) --no-print-directory clean
         ifeq ($(coreExists),0)
 	        $(v)$(MAKE) -f $(thisFile) CORE_VERSION=$(CORE_VERSION)
         endif

@@ -56,7 +56,7 @@ endif
 
 # ------------------------------------------------------------------------------
 ifeq ($(SKIP_CORE_PRE_BUILD),0)
-    LIB_PROJ_DIRS +=  $(_arduino_project_mk_dir)cores:avr.mk::CORE_VERSION=$(CORE_VERSION)
+    LIB_PROJ_DIRS += $(_arduino_project_mk_dir)cores:avr.mk::CORE_VERSION=$(CORE_VERSION)
 endif
 # ------------------------------------------------------------------------------
 
@@ -82,8 +82,10 @@ ifeq ($(PROJ_TYPE),app)
     ASFLAGS  += -flto
     LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(_MCU)
 
-    POST_BUILD_DEPS += $(buildDir)/$(hexArtifactName)
-    POST_DIST_DEPS  += $(distDir)/bin/$(hexArtifactName)
+    ifneq ($(srcFiles),)
+        POST_BUILD_DEPS += $(buildDir)/$(hexArtifactName)
+        POST_DIST_DEPS  += $(distDir)/bin/$(hexArtifactName)
+    endif
 else
     ARTIFACT_NAME := lib$(ARTIFACT_BASE_NAME).a
 endif
@@ -95,6 +97,7 @@ CXXFLAGS += -mmcu=$(_MCU) -DF_CPU=$(_F_CPU) -DARDUINO=$(CORE_VERSION) -DARDUINO_
 ASFLAGS  += -mmcu=$(_MCU) -DF_CPU=$(_F_CPU) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(_BOARD) -DARDUINO_ARCH_$(_ARCH)
 # ------------------------------------------------------------------------------
 
+ifneq ($(srcFiles),)
 # POST_BUILD_DEPS ==============================================================
 ifeq ($(PROJ_TYPE),app)
 $(buildDir)/$(hexArtifactName): $(buildDir)/$(ARTIFACT_NAME)
@@ -127,5 +130,6 @@ flash: dist
 	$(v)avrdude -C/etc/avrdude.conf -v -p$(_MCU) -carduino -P$(PORT) -Uflash:w:$(distDir)/bin/$(hexArtifactName):i
 endif
 # ==============================================================================
+endif # ifneq ($(srcFiles),)
 
 endif # _include_arduino_boards_arduino_avr_mk
