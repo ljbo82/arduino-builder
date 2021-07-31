@@ -6,20 +6,20 @@
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
-# arduino-gcc-project-builder is distributed in the hope that it will be 
+# arduino-gcc-project-builder is distributed in the hope that it will be
 # useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with arduino-gcc-project-builder.  If not, 
+# along with arduino-gcc-project-builder.  If not,
 # see <https://www.gnu.org/licenses/>
 
-ifeq ($(CORE_REPO), )
+ifeq ($(CORE_REPO),)
     CORE_REPO := https://github.com/arduino/ArduinoCore-avr.git
 endif
 
-ifeq ($(CORE_VERSION), )
+ifeq ($(CORE_VERSION),)
     CORE_VERSION := 1.8.3
 endif
 
@@ -32,41 +32,42 @@ fn_path_get_level = $(shell sh -c "echo $(1) | cut -d'/' -f$(2)-")
 PROJ_NAME      := arduino-core
 PROJ_TYPE      := lib
 PROJ_VERSION   := $(CORE_VERSION)
-O              := $(coreBaseDir)/output
+O              ?= $(coreBaseDir)/output
 SRC_DIRS       += $(coreSrcDir)/cores/arduino
-SRC_DIRS       += $(foreach library, $(shell find $(coreSrcDir)/libraries -maxdepth 1 -type d -path '$(coreSrcDir)/libraries/*'), $(library)/src)
+SRC_DIRS       += $(foreach library,$(shell find $(coreSrcDir)/libraries -maxdepth 1 -type d -path '$(coreSrcDir)/libraries/*'),$(library)/src)
 INCLUDE_DIRS   += $(coreSrcDir)/variants/$(variant) $(coreSrcDir)/cores
-BUILD_DEPS     += src-checkout
-POST_DIST_DEPS += $(foreach srcHeader, $(shell find $(coreSrcDir)/cores/arduino -type f -name '*.h' -and ! \( -name '*_private.h' \)), $(distDir)/$(defaultIncludeDir)/$(notdir $(srcHeader)))
+PRE_BUILD_DEPS  += src-checkout
+POST_DIST_DEPS += $(foreach srcHeader,$(shell find $(coreSrcDir)/cores/arduino -type f -name '*.h' -and ! \( -name '*_private.h' \)),$(distDir)/$(defaultIncludeDir)/$(notdir $(srcHeader)))
 POST_DIST_DEPS += $(distDir)/$(defaultIncludeDir)/pins_arduino.h
-POST_DIST_DEPS += $(foreach libHeader, $(shell find $(coreSrcDir)/libraries -type f -name '*.h'), $(distDir)/$(defaultIncludeDir)/$(call fn_path_get_level, $(libHeader), 6))
+POST_DIST_DEPS += $(foreach libHeader,$(shell find $(coreSrcDir)/libraries -type f -name '*.h'),$(distDir)/$(defaultIncludeDir)/$(call fn_path_get_level,$(libHeader),6))
 
 coreExists := $(wildcard $(coreSrcDir)/cores/arduino/Arduino.h)
 
-ifeq ($(coreExists), )
+ifeq ($(coreExists),)
     coreExists := 0
 else
     coreExists := 1
     coreTag    := $(shell cd $(coreSrcDir) > /dev/null 2>&1; git describe --tags)
 endif
 
-ifeq ($(coreExists), 1)
+ifeq ($(coreExists),1)
     # If core source is present, enables standard build targets
     SKIP_CORE_PRE_BUILD := 1
+    LIBS += m
     include ../project.mk
 else
     # If core' source is not present offers only 'src-checkout' target
-    ifeq ($(V), )
+    ifeq ($(V),)
         V := 0
     endif
 
-    ifneq ($(V), 0)
-        ifneq ($(V), 1)
+    ifneq ($(V),0)
+        ifneq ($(V),1)
             $(error ERROR: Invalid value for V: $(V))
         endif
     endif
 
-    ifeq ($(V), 0)
+    ifeq ($(V),0)
         v  := @
         nl :=
     else
@@ -85,13 +86,14 @@ $(coreSrcDir)/.git/index:
 
 .PHONY: src-checkout
 src-checkout: $(coreSrcDir)/.git/index
-    ifneq ($(coreTag), $(CORE_VERSION))
+    ifneq ($(coreTag),$(CORE_VERSION))
 	    @printf "$(nl)[GIT] checkout $(CORE_VERSION)\n"
-        ifneq ($(shell cd $(coreSrcDir) > /dev/null 2>&1; git checkout $(CORE_VERSION) > /dev/null 2>&1; echo $$?), 0)
+        ifneq ($(shell cd $(coreSrcDir) > /dev/null 2>&1; git checkout $(CORE_VERSION) > /dev/null 2>&1; echo $$?),0)
 	        $(v)cd $(coreSrcDir); git fetch -q
 	        $(v)cd $(coreSrcDir); git checkout -q $(CORE_VERSION)
         endif
-        ifeq ($(coreExists), 0)
+	    $(v)$(MAKE) -f $(thisFile) clean
+        ifeq ($(coreExists),0)
 	        $(v)$(MAKE) -f $(thisFile) CORE_VERSION=$(CORE_VERSION)
         endif
     endif
@@ -113,4 +115,3 @@ $(distDir)/$(defaultIncludeDir)/pins_arduino.h : $(coreSrcDir)/variants/$(varian
 	@mkdir -p $(dir $@)
 	$(v)ln -f $< $@
 # ==============================================================================
-

@@ -6,67 +6,57 @@
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
-# arduino-gcc-project-builder is distributed in the hope that it will be 
+# arduino-gcc-project-builder is distributed in the hope that it will be
 # useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with arduino-gcc-project-builder.  If not, 
+# along with arduino-gcc-project-builder.  If not,
 # see <https://www.gnu.org/licenses/>
 
 ifndef _include_arduino_boards_arduino_avr_mk
 _include_arduino_boards_arduino_avr_mk := 1
 
 # ------------------------------------------------------------------------------
-ifeq ($(_arduino_project_mk_dir), )
+ifeq ($(_arduino_project_mk_dir),)
     $(error project.mk not included yet)
 endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-ifeq ($(BOARD), $(basename $(notdir $(lastword $(MAKEFILE_LIST)))))
+ifeq ($(BOARD),$(basename $(notdir $(lastword $(MAKEFILE_LIST)))))
     $(error Unsupported BOARD: $(BOARD))
 endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-ifeq ($(SKIP_CORE_PRE_BUILD), )
+ifeq ($(SKIP_CORE_PRE_BUILD),)
     SKIP_CORE_PRE_BUILD := 0
 endif
 
-ifneq ($(SKIP_CORE_PRE_BUILD), 0)
-    ifneq ($(SKIP_CORE_PRE_BUILD), 1)
+ifneq ($(SKIP_CORE_PRE_BUILD),0)
+    ifneq ($(SKIP_CORE_PRE_BUILD),1)
         $(error Invalid value for SKIP_CORE_PRE_BUILD: $(SKIP_CORE_PRE_BUILD))
     endif
 endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-ifeq ($(CORE_VERSION), )
+ifeq ($(CORE_VERSION),)
     CORE_VERSION := 1.8.3
 endif
 
 include $(_arduino_project_mk_dir)$(gcc_project_builder_dir)/functions.mk
 
-ifeq ($(call fn_version_valid, $(CORE_VERSION)), 0)
+ifeq ($(call fn_version_valid,$(CORE_VERSION)),0)
     $(error Invalid CORE_VERSION: $(CORE_VERSION))
 endif
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-coreLibDir  := $(_arduino_project_mk_dir)cores/avr/output
-coreLibName := arduino-core$(call fn_version_major, $(CORE_VERSION))
-ifeq ($(DEBUG), 1)
-    coreLibName := $(coreLibName)_d
-endif
-# ------------------------------------------------------------------------------
-
-# ------------------------------------------------------------------------------
-ifeq ($(SKIP_CORE_PRE_BUILD), 0)
-    BUILD_DEPS   += $(coreLibDir)/dist/$(HOST)/lib/lib$(coreLibName).a
-    INCLUDE_DIRS += $(coreLibDir)/dist/$(HOST)/$(defaultIncludeDir)
-    LDFLAGS      += -L$(coreLibDir)/dist/$(HOST)/lib -l$(coreLibName) -lm
+ifeq ($(SKIP_CORE_PRE_BUILD),0)
+    LIB_PROJ_DIRS +=  $(_arduino_project_mk_dir)cores:avr.mk::CORE_VERSION=$(CORE_VERSION)
 endif
 # ------------------------------------------------------------------------------
 
@@ -83,7 +73,7 @@ LDFLAGS  += -Os -Wl,--gc-sections
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
-ifeq ($(PROJ_TYPE), app)
+ifeq ($(PROJ_TYPE),app)
     ARTIFACT_NAME   := $(ARTIFACT_BASE_NAME).bin
     hexArtifactName := $(basename $(ARTIFACT_NAME)).hex
 
@@ -105,17 +95,8 @@ CXXFLAGS += -mmcu=$(mcu) -DF_CPU=$(fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(b
 ASFLAGS  += -mmcu=$(mcu) -DF_CPU=$(fcpu) -DARDUINO=$(CORE_VERSION) -DARDUINO_$(board) -DARDUINO_ARCH_$(arch)
 # ------------------------------------------------------------------------------
 
-# BUILD_DEPS ===================================================================
-ifeq ($(SKIP_CORE_PRE_BUILD), 0)
-$(coreLibDir)/dist/$(HOST)/lib/lib$(coreLibName).a:
-	@printf "$(nl)[BUILD] $@\n"
-	@rm -f $(buildDir)/$(ARTIFACT_NAME) $(distDir)/bin/$(ARTIFACT_NAME)
-	$(v)$(MAKE) -C $(_arduino_project_mk_dir)cores -f avr.mk CORE_VERSION=$(CORE_VERSION)
-endif
-# ==============================================================================
-
 # POST_BUILD_DEPS ==============================================================
-ifeq ($(PROJ_TYPE), app)
+ifeq ($(PROJ_TYPE),app)
 $(buildDir)/$(hexArtifactName): $(buildDir)/$(ARTIFACT_NAME)
 	@printf "$(nl)[HEX] $@\n"
 	@mkdir -p $(dir $@)
@@ -124,7 +105,7 @@ endif
 # ==============================================================================
 
 # POST_DIST_DEPS ===============================================================
-ifeq ($(PROJ_TYPE), app)
+ifeq ($(PROJ_TYPE),app)
 $(distDir)/bin/$(hexArtifactName): $(buildDir)/$(hexArtifactName)
 	@printf "$(nl)[DIST] $@\n"
 	@mkdir -p $(dir $@)
@@ -133,13 +114,13 @@ endif
 # ==============================================================================
 
 # ==============================================================================
-ifeq ($(PROJ_TYPE), app)
+ifeq ($(PROJ_TYPE),app)
 .PHONY: flash
 flash: dist
-    ifeq ($(PORT), )
+    ifeq ($(PORT),)
 	    $(error Missing PORT)
     endif
-    ifeq ($(shell avrdude -? > /dev/null 2>&1 && echo 1 || echo 0), 0)
+    ifeq ($(shell avrdude -? > /dev/null 2>&1 && echo 1 || echo 0),0)
 	    $(error avrdude is not in PATH)
     endif
 	@printf "$(nl)[FLASH] $(distDir)/bin/$(hexArtifactName)\n"
@@ -148,4 +129,3 @@ endif
 # ==============================================================================
 
 endif # _include_arduino_boards_arduino_avr_mk
-
