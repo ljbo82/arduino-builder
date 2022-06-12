@@ -59,25 +59,26 @@ override CXXFLAGS += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(A
 override ASFLAGS  += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
 
 ifeq ($(PROJ_TYPE),app)
+    POST_BUILD_DEPS  += $(O_BUILD_DIR)/$(ARTIFACT).hex
+    EXTRA_DIST_FILES += $(O_BUILD_DIR)/$(ARTIFACT).hex:bin/$(ARTIFACT).hex
+
+    # NOTE: ARTIFACT is defined later
     define LAZY +=
-        POST_BUILD_DEPS  += $(O_BUILD_DIR)/$(ARTIFACT).hex
-        EXTRA_DIST_FILES += $(O_BUILD_DIR)/$(ARTIFACT).hex:bin/$(ARTIFACT).    hex
+    # =============================================================================
+        $$(O_BUILD_DIR)/$$(ARTIFACT).hex: $$(O_BUILD_DIR)/$$(ARTIFACT)
+	    @echo [HEX] $$@
+	    $$(O_VERBOSE)avr-objcopy -O ihex -R .eeprom $$< $$@
+    # =============================================================================
 
-        # =============================================================================
-        $(O_BUILD_DIR)/$(ARTIFACT).hex: $(O_BUILD_DIR)/$(ARTIFACT)
-	        @echo [HEX] $@
-	        $(O_VERBOSE)avr-objcopy -O ihex -R .eeprom $< $@
-        # =============================================================================
-
-        # =============================================================================
-        .PHONY: upload
-        upload: dist
-            ifeq ($(PORT),)
-	            $(error [PORT] Missing value)
-            endif
-	        @echo [UPLOAD] $(O_DIST_DIR)/bin/$(ARTIFACT).hex ==> $(PORT)
-	        $(O_VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
-        # =============================================================================
+    # =============================================================================
+    .PHONY: upload
+    upload: dist
+        ifeq ($$(PORT),)
+	        $$(error [PORT] Missing value)
+        endif
+	    @echo [UPLOAD] $$(O_DIST_DIR)/bin/$$(ARTIFACT).hex ==> $$(PORT)
+	    $$(O_VERBOSE)avrdude -C/etc/avrdude.conf -v -p$$(ARDUINO_MCU) -carduino -P$$(PORT) -Uflash:w:$$(O_DIST_DIR)/bin/$$(ARTIFACT).hex:i
+    # =============================================================================
     endef
 endif
 
