@@ -20,14 +20,12 @@
 
 # Standard arduino project
 
-GCC_PROJECT_BUILDER ?= gcc-project-builder
+__SELF_DIR__ := $(dir $(lastword $(MAKEFILE_LIST)))
+
+GCC_PROJECT_BUILDER ?= $(__SELF_DIR__)gcc-project-builder
+
 ifeq ($(GCC_PROJECT_BUILDER),)
     $(error [GCC_PROJECT_BUILDER] Missing value)
-endif
-
-__SELF_DIR__ := $(dir $(lastword $(MAKEFILE_LIST)))
-ifeq ($(__SELF_DIR__),./)
-    undefine __SELF_DIR__
 endif
 
 HOST ?= arduino
