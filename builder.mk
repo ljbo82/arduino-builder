@@ -28,8 +28,6 @@ ifeq ($(GCC_PROJECT_BUILDER),)
     $(error [GCC_PROJECT_BUILDER] Missing value)
 endif
 
-HOST ?= arduino
-
 $(eval HOSTS_DIRS += $(__SELF_DIR__)hosts)
 
 include $(GCC_PROJECT_BUILDER)/builder.mk
