@@ -18,12 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Standard arduino builder
+# Standard arduino project
 
 __SELF_DIR__ := $(dir $(lastword $(MAKEFILE_LIST)))
 
-include $(__SELF_DIR__)/project.mk
+GCC_PROJECT_BUILDER ?= $(__SELF_DIR__)gcc-project-builder
 
-# NOTE: GCC_PROJECT_BUILDER is defined in project.mk
+ifeq ($(GCC_PROJECT_BUILDER),)
+    $(error [GCC_PROJECT_BUILDER] Missing value)
+endif
 
-include $(GCC_PROJECT_BUILDER)/builder.mk
+$(eval HOSTS_DIRS += $(__SELF_DIR__)hosts)
+
+include $(GCC_PROJECT_BUILDER)/project.mk
