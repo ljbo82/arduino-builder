@@ -23,7 +23,7 @@
 ifndef __arduino_avr_mk__
 __arduino_avr_mk__ := 1
 
-CROSS_COMPILE  ?= avr-
+CROSS_COMPILE ?= avr-
 
 ifndef LIB_TYPE
     LIB_TYPE := static
@@ -40,23 +40,23 @@ ifdef ARDUINO_ARCH
 endif
 ARDUINO_ARCH := AVR
 
-override AS = $(CC)
+AS = $(CC)
 
-override CFLAGS   += -std=gnu11 -ffunction-sections -fdata-sections
-override CXXFLAGS += -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing
-override ASFLAGS  += -x assembler-with-cpp
-override LDFLAGS  += -Wl,--gc-sections
+CFLAGS   += -std=gnu11 -ffunction-sections -fdata-sections
+CXXFLAGS += -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing
+ASFLAGS  += -x assembler-with-cpp
+LDFLAGS  += -Wl,--gc-sections
 
 ifeq ($(PROJ_TYPE),app)
-    override CFLAGS   += -flto -fno-fat-lto-objects
-    override CXXFLAGS += -flto
-    override ASFLAGS  += -flto
-    override LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(ARDUINO_MCU)
+    CFLAGS   += -flto -fno-fat-lto-objects
+    CXXFLAGS += -flto
+    ASFLAGS  += -flto
+    LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(ARDUINO_MCU)
 endif
 
-override CFLAGS   += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
-override CXXFLAGS += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
-override ASFLAGS  += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
+CFLAGS   += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
+CXXFLAGS += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
+ASFLAGS  += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
 
 ifeq ($(PROJ_TYPE),app)
     POST_BUILD_DEPS  += $(O_BUILD_DIR)/$(ARTIFACT).hex
