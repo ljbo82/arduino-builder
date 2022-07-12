@@ -18,12 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Standard arduino builder
-
 __SELF_DIR__ := $(dir $(lastword $(MAKEFILE_LIST)))
 
-include $(__SELF_DIR__)/project.mk
-
-# NOTE: GCC_PROJECT_BUILDER is defined in project.mk
-
-include $(GCC_PROJECT_BUILDER)/builder.mk
+$(eval HOSTS_DIRS += $(__SELF_DIR__)hosts)
