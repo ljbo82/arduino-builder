@@ -28,4 +28,9 @@ ARDUINO_F_CPU   := 16000000L
 ARDUINO_BOARD   := UNO
 ARDUINO_VARIANT := standard
 
+ifeq ($(DEBUG),1)
+    CFLAGS   += -Os -s
+    CXXFLAGS += -Os -s
+endif
+
 endif # ifndef __arduino_avr_uno_mk__
