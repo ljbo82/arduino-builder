@@ -24,15 +24,7 @@ ifndef __arduino_avr_mk__
 __arduino_avr_mk__ := 1
 
 CROSS_COMPILE ?= avr-
-
-ifndef LIB_TYPE
-    LIB_TYPE := static
-else
-    ifneq ($(LIB_TYPE),static)
-        $(error [LIB_TYPE] Unsupported value: $(LIB_TYPE))
-    endif
-endif
-
+LIB_TYPE := static
 RELEASE_OPTIMIZATION_LEVEL := s
 
 ifdef ARDUINO_ARCH
