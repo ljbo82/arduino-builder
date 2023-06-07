@@ -35,7 +35,7 @@ ifeq ($(PROJ_TYPE),app)
     endif
 endif
 
-LIB_TYPE ?= shared
+LIB_TYPE := static
 
 ifeq ($(PROJ_TYPE),lib)
     __hosts_arduino_mk_target_base_name__ := lib$(__hosts_arduino_mk_target_base_name__)
