@@ -20,4 +20,4 @@
 
 __SELF_DIR__ := $(dir $(lastword $(MAKEFILE_LIST)))
 
-$(eval HOSTS_DIRS += $(__SELF_DIR__)hosts)
+HOSTS_DIRS := $(__SELF_DIR__)hosts $(HOSTS_DIRS)
