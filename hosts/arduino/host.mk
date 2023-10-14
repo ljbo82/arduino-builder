@@ -35,7 +35,7 @@ ifeq ($(PROJ_TYPE),app)
     endif
 endif
 
-LIB_TYPE := static
+LIB_TYPE ?= static
 
 ifeq ($(PROJ_TYPE),lib)
     __hosts_arduino_mk_target_base_name__ := lib$(__hosts_arduino_mk_target_base_name__)
@@ -44,13 +44,8 @@ ifeq ($(PROJ_TYPE),lib)
         ifndef ARTIFACT
             ARTIFACT := $(__hosts_arduino_mk_target_base_name__).a
         endif
-    endif
-
-    ifeq ($(LIB_TYPE),shared)
-        ifndef ARTIFACT
-            __hosts_arduino_mk_shared_lib_suffix__ ?= .so
-            ARTIFACT := $(__hosts_arduino_mk_target_base_name__)$(__hosts_arduino_mk_shared_lib_suffix__)
-        endif
+    else
+        $(error [LIB_TYPE] Unsupported value: $(LIB_TYPE))
     endif
 endif
 
