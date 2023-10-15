@@ -23,6 +23,10 @@
 ifndef __arduino_avr_uno_mk__
 __arduino_avr_uno_mk__ := 1
 
+ifndef __arduino_avr_mk__
+    $(error This file cannot be manually included)
+endif
+
 ARDUINO_MCU     := atmega328p
 ARDUINO_F_CPU   := 16000000L
 ARDUINO_BOARD   := UNO

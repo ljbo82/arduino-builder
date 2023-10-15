@@ -18,44 +18,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# arduino-avr host definitions
-
 ifndef __arduino_avr_mk__
-__arduino_avr_mk__ := 1
-
-ifndef __arduino_mk__
     $(error This file cannot be manually included)
 endif
 
-CROSS_COMPILE ?= avr-
-RELEASE_OPTIMIZATION_LEVEL := s
+POST_BUILD_DEPS += $(O_BUILD_DIR)/$(ARTIFACT).hex
+DIST_FILES += $(O_BUILD_DIR)/$(ARTIFACT).hex:bin/$(ARTIFACT).hex
 
-ifdef ARDUINO_ARCH
-    $(error [ARDUINO_ARCH] Reserved variable)
-endif
+# ==============================================================================
+$(O_BUILD_DIR)/$(ARTIFACT).hex: $(O_BUILD_DIR)/$(ARTIFACT)
+	@echo [HEX] $@
+	$(O_VERBOSE)avr-objcopy -O ihex -R .eeprom $< $@
+# ==============================================================================
 
-ARDUINO_ARCH := AVR
-
-AS = $(CC)
-
-CFLAGS   += -std=gnu11 -ffunction-sections -fdata-sections
-CXXFLAGS += -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing
-ASFLAGS  += -x assembler-with-cpp
-LDFLAGS  += -Wl,--gc-sections
-
-ifeq ($(PROJ_TYPE),app)
-    CFLAGS   += -flto -fno-fat-lto-objects
-    CXXFLAGS += -flto
-    ASFLAGS  += -flto
-    LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(ARDUINO_MCU)
-endif
-
-CFLAGS   += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
-CXXFLAGS += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
-ASFLAGS  += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
-
-ifeq ($(PROJ_TYPE),app)
-    LAZY_INCLUDES := $(LAZY_INCLUDES) $(dir $(lastword $(MAKEFILE_LIST)))targets.mk
-endif
-
-endif # ifndef __arduino_avr_mk__
+# ==============================================================================
+.PHONY: upload
+upload: dist
+    ifeq ($(PORT),)
+	    $(error [PORT] Missing value)
+    endif
+	@echo [UPLOAD] $(O_DIST_DIR)/bin/$(ARTIFACT).hex ==> $(PORT)
+	$(O_VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
+# ==============================================================================
