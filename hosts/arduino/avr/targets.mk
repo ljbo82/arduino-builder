@@ -28,7 +28,7 @@ DIST_FILES += $(O_BUILD_DIR)/$(ARTIFACT).hex:bin/$(ARTIFACT).hex
 # ==============================================================================
 $(O_BUILD_DIR)/$(ARTIFACT).hex: $(O_BUILD_DIR)/$(ARTIFACT)
 	@echo [HEX] $@
-	$(O_VERBOSE)avr-objcopy -O ihex -R .eeprom $< $@
+	$(VERBOSE)avr-objcopy -O ihex -R .eeprom $< $@
 # ==============================================================================
 
 # ==============================================================================
@@ -38,5 +38,5 @@ upload: dist
 	    $(error [PORT] Missing value)
     endif
 	@echo [UPLOAD] $(O_DIST_DIR)/bin/$(ARTIFACT).hex ==> $(PORT)
-	$(O_VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
+	$(VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
 # ==============================================================================

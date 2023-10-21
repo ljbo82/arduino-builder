@@ -55,7 +55,7 @@ CXXFLAGS += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BO
 ASFLAGS  += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
 
 ifeq ($(PROJ_TYPE),app)
-    LAZY_INCLUDES := $(LAZY_INCLUDES) $(dir $(lastword $(MAKEFILE_LIST)))targets.mk
+    MAKE_INCLUDES := $(MAKE_INCLUDES) $(dir $(lastword $(MAKEFILE_LIST)))targets.mk
 endif
 
 endif # ifndef __arduino_avr_mk__
