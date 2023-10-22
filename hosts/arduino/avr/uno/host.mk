@@ -20,10 +20,10 @@
 
 # arduino-avr-uno host definitions
 
-ifndef __arduino_avr_uno_mk__
-__arduino_avr_uno_mk__ := 1
+ifndef arduino_avr_uno_mk
+arduino_avr_uno_mk := 1
 
-ifndef __arduino_avr_mk__
+ifndef arduino_avr_mk
     $(error This file cannot be manually included)
 endif
 
@@ -37,4 +37,4 @@ ifeq ($(DEBUG),1)
     CXXFLAGS += -Os -s
 endif
 
-endif # ifndef __arduino_avr_uno_mk__
+endif # ifndef arduino_avr_uno_mk

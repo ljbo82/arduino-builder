@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ifndef __arduino_avr_mk__
+ifndef arduino_avr_mk
     $(error This file cannot be manually included)
 endif
 

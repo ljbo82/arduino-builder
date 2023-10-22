@@ -20,10 +20,10 @@
 
 # Arduino host definitions
 
-ifndef __arduino_mk__
-__arduino_mk__ := 1
+ifndef arduino_mk
+arduino_mk := 1
 
-ifndef __project_mk__
+ifndef project_mk
     $(error This file cannot be manually included)
 endif
 
@@ -38,4 +38,4 @@ else ifeq ($(PROJ_TYPE),lib)
     endif
 endif
 
-endif # ifndef __arduino_mk__
+endif # ifndef arduino_mk
