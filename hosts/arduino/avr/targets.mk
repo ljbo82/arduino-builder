@@ -18,7 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ifndef arduino_avr_mk
+ifndef hosts_arduino_avr_targets_mk
+hosts_arduino_avr_targets_mk := 1
+
+ifndef hosts_arduino_avr_host_mk
     $(error This file cannot be manually included)
 endif
 
@@ -40,3 +43,5 @@ upload: dist
 	@echo [UPLOAD] $(O_DIST_DIR)/bin/$(ARTIFACT).hex ==> $(PORT)
 	$(VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
 # ==============================================================================
+
+endif # ifndef hosts_arduino_avr_targets_mk

@@ -18,6 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__SELF_DIR__ := $(dir $(lastword $(MAKEFILE_LIST)))
+ifndef arduino_builder_layers_mk
+arduino_builder_layers_mk := 1
 
-HOSTS_DIRS := $(__SELF_DIR__)hosts $(HOSTS_DIRS)
+HOSTS_DIRS := $(dir $(lastword $(MAKEFILE_LIST)))hosts $(HOSTS_DIRS)
+
+endif # ifndef arduino_builder_layers_mk

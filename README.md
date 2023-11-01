@@ -24,5 +24,5 @@ PROJ_NAME := blink
 PROJ_TYPE := app
 
 include $(ARDUINO_BUILDER)/layers.mk
-include $(CPP_PROJECT_BUILDER)/builder.mk
+include $(CPP_PROJECT_BUILDER)/project.mk
 ```

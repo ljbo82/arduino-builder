@@ -20,10 +20,10 @@
 
 # arduino-avr host definitions
 
-ifndef arduino_avr_mk
-arduino_avr_mk := 1
+ifndef hosts_arduino_avr_host_mk
+hosts_arduino_avr_host_mk := 1
 
-ifndef arduino_mk
+ifndef hosts_arduino_host_mk
     $(error This file cannot be manually included)
 endif
 
@@ -58,4 +58,4 @@ ifeq ($(PROJ_TYPE),app)
     MK_EXTRA_INCLUDES := $(MK_EXTRA_INCLUDES) $(dir $(lastword $(MAKEFILE_LIST)))targets.mk
 endif
 
-endif # ifndef arduino_avr_mk
+endif # ifndef hosts_arduino_avr_host_mk

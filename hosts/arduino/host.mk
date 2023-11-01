@@ -20,8 +20,8 @@
 
 # Arduino host definitions
 
-ifndef arduino_mk
-arduino_mk := 1
+ifndef hosts_arduino_host_mk
+hosts_arduino_host_mk := 1
 
 ifndef project_mk
     $(error This file cannot be manually included)
@@ -32,10 +32,17 @@ ifeq ($(PROJ_TYPE),app)
         ARTIFACT := $(PROJ_NAME)
     endif
 else ifeq ($(PROJ_TYPE),lib)
-    LIB_TYPE := static
+    ifdef LIB_TYPE
+        ifneq ($(LIB_TYPE),static)
+            $(error [LIB_TYPE] Unsupported value: $(LIB_TYPE))
+        endif
+    else
+        LIB_TYPE := static
+    endif
+    LIB_NAME ?= $(PROJ_NAME)$(call FN_SEMVER_MAJOR,$(PROJ_VERSION))
     ifndef ARTIFACT
-        ARTIFACT := lib$(PROJ_NAME)$(call FN_SEMVER_MAJOR,$(PROJ_VERSION)).a
+        ARTIFACT := lib$(LIB_NAME).a
     endif
 endif
 
-endif # ifndef arduino_mk
+endif # ifndef hosts_arduino_host_mk
