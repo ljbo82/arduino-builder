@@ -33,9 +33,7 @@ ifeq ($(PROJ_TYPE),app)
     endif
 else ifeq ($(PROJ_TYPE),lib)
     ifdef LIB_TYPE
-        ifneq ($(LIB_TYPE),static)
-            $(error [LIB_TYPE] Unsupported value: $(LIB_TYPE))
-        endif
+        $(call FN_CHECK_WORDS,LIB_TYPE,static,Unsupported value: $(LIB_TYPE))
     else
         LIB_TYPE := static
     endif

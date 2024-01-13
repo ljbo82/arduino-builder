@@ -37,9 +37,7 @@ $(O_BUILD_DIR)/$(ARTIFACT).hex: $(O_BUILD_DIR)/$(ARTIFACT)
 # ==============================================================================
 .PHONY: upload
 upload: dist
-    ifeq ($(PORT),)
-	    $(error [PORT] Missing value)
-    endif
+	$(call FN_CHECK_NON_EMPTY,PORT)
 	@echo [UPLOAD] $(O_DIST_DIR)/bin/$(ARTIFACT).hex ==> $(PORT)
 	$(VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
 # ==============================================================================
