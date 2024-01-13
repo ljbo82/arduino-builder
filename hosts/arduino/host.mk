@@ -37,7 +37,6 @@ else ifeq ($(PROJ_TYPE),lib)
     else
         LIB_TYPE := static
     endif
-    LIB_NAME ?= $(PROJ_NAME)$(call FN_SEMVER_MAJOR,$(PROJ_VERSION))
     ifndef ARTIFACT
         ARTIFACT := lib$(LIB_NAME).a
     endif
