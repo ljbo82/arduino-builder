@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Leandro José Britto de Oliveira
+# Copyright (c) 2022-2024 Leandro José Britto de Oliveira
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,10 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ifndef arduino_builder_toolchains_gcc_arduino_avr_targets_mk
-arduino_builder_toolchains_gcc_arduino_avr_targets_mk := 1
+ifndef ab_toolchains_gcc_arduino_avr_targets_mk
+ab_toolchains_gcc_arduino_avr_targets_mk := $(lastword $(MAKEFILE_LIST))
 
-ifndef arduino_builder_builder_mk
+ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
 
@@ -42,4 +42,4 @@ upload: dist
 	$(VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
 # ==============================================================================
 
-endif # ifndef arduino_builder_toolchains_gcc_arduino_avr_targets_mk
+endif # ifndef ab_toolchains_gcc_arduino_avr_targets_mk

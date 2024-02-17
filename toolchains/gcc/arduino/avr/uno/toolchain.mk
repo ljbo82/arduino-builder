@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Leandro José Britto de Oliveira
+# Copyright (c) 2022-2024 Leandro José Britto de Oliveira
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,10 @@
 
 # arduino-avr-uno host definitions
 
-ifndef arduino_builder_toolchains_gcc_arduino_avr_uno_toolchain_mk
-arduino_builder_toolchains_gcc_arduino_avr_uno_toolchain_mk := 1
+ifndef ab_toolchains_gcc_arduino_avr_uno_toolchain_mk
+ab_toolchains_gcc_arduino_avr_uno_toolchain_mk := $(lastword $(MAKEFILE_LIST))
 
-ifndef arduino_builder_builder_mk
+ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
 
@@ -33,8 +33,8 @@ ARDUINO_BOARD   := UNO
 ARDUINO_VARIANT := standard
 
 ifeq ($(DEBUG),1)
-    CFLAGS   += -Os -s
-    CXXFLAGS += -Os -s
+    override CFLAGS   += -Os -s
+    override CXXFLAGS += -Os -s
 endif
 
-endif # ifndef arduino_builder_toolchains_gcc_arduino_avr_uno_toolchain_mk
+endif # ifndef ab_toolchains_gcc_arduino_avr_uno_toolchain_mk

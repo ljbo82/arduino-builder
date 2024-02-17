@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Leandro José Britto de Oliveira
+# Copyright (c) 2022-2024 Leandro José Britto de Oliveira
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,10 @@
 
 # arduino-avr host definitions
 
-ifndef arduino_builder_toolchains_gcc_arduino_avr_toolchain_mk
-arduino_builder_toolchains_gcc_arduino_avr_toolchain_mk := 1
+ifndef ab_toolchains_gcc_arduino_avr_toolchain_mk
+ab_toolchains_gcc_arduino_avr_toolchain_mk := $(lastword $(MAKEFILE_LIST))
 
-ifndef arduino_builder_builder_mk
+ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
 
@@ -36,26 +36,26 @@ endif
 
 ARDUINO_ARCH := AVR
 
-AS = $(CC)
+override AS = $(CC)
 
-CFLAGS   += -std=gnu11 -ffunction-sections -fdata-sections
-CXXFLAGS += -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing
-ASFLAGS  += -x assembler-with-cpp
-LDFLAGS  += -Wl,--gc-sections
-
-ifeq ($(PROJ_TYPE),app)
-    CFLAGS   += -flto -fno-fat-lto-objects
-    CXXFLAGS += -flto
-    ASFLAGS  += -flto
-    LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(ARDUINO_MCU)
-endif
-
-CFLAGS   += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
-CXXFLAGS += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
-ASFLAGS  += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
+override CFLAGS   += -std=gnu11 -ffunction-sections -fdata-sections
+override CXXFLAGS += -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing
+override ASFLAGS  += -x assembler-with-cpp
+override LDFLAGS  += -Wl,--gc-sections
 
 ifeq ($(PROJ_TYPE),app)
-    POST_INCLUDES := $(POST_INCLUDES) $(dir $(lastword $(MAKEFILE_LIST)))targets.mk
+    override CFLAGS   += -flto -fno-fat-lto-objects
+    override CXXFLAGS += -flto
+    override ASFLAGS  += -flto
+    override LDFLAGS  += -flto -fuse-linker-plugin -mmcu=$(ARDUINO_MCU)
 endif
 
-endif # ifndef arduino_builder_toolchains_gcc_arduino_avr_toolchain_mk
+override CFLAGS   += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
+override CXXFLAGS += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
+override ASFLAGS  += -mmcu=$(ARDUINO_MCU) -DF_CPU=$(ARDUINO_F_CPU) -DARDUINO_$(ARDUINO_BOARD) -DARDUINO_ARCH_$(ARDUINO_ARCH)
+
+ifeq ($(PROJ_TYPE),app)
+    POST_INCLUDES += $(dir $(ab_toolchains_gcc_arduino_avr_toolchain_mk))targets.mk
+endif
+
+endif # ifndef ab_toolchains_gcc_arduino_avr_toolchain_mk

@@ -18,9 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ifndef arduino_builder_builder_mk
-arduino_builder_builder_mk := 1
+ifndef ab_builder_mk
+ab_builder_mk := $(lastword $(MAKEFILE_LIST))
 
-TOOLCHAIN_DIRS := $(dir $(lastword $(MAKEFILE_LIST)))toolchains $(TOOLCHAIN_DIRS)
+TOOLCHAIN_DIRS += $(dir $(ab_builder_mk))toolchains
 
-endif # ifndef arduino_builder_builder_mk
+endif # ifndef ab_builder_mk

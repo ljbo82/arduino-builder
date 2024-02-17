@@ -20,10 +20,10 @@
 
 # Arduino host definitions
 
-ifndef arduino_builder_toolchains_gcc_arduino_toolchain_mk
-arduino_builder_toolchains_gcc_arduino_toolchain_mk := 1
+ifndef ab_toolchains_gcc_arduino_toolchain_mk
+ab_toolchains_gcc_arduino_toolchain_mk := $(lastword $(MAKEFILE_LIST))
 
-ifndef cpb_builder_mk
+ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
 
@@ -42,4 +42,4 @@ else ifeq ($(PROJ_TYPE),lib)
     endif
 endif
 
-endif # ifndef arduino_builder_toolchains_gcc_arduino_toolchain_mk
+endif # ifndef ab_toolchains_gcc_arduino_toolchain_mk
