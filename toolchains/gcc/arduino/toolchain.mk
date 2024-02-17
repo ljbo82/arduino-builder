@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Leandro José Britto de Oliveira
+# Copyright (c) 2023 Leandro José Britto de Oliveira
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,9 +18,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ifndef arduino_builder_layers_mk
-arduino_builder_layers_mk := 1
+# Arduino host definitions
 
-HOSTS_DIRS := $(dir $(lastword $(MAKEFILE_LIST)))hosts $(HOSTS_DIRS)
+ifndef arduino_builder_toolchains_gcc_arduino_toolchain_mk
+arduino_builder_toolchains_gcc_arduino_toolchain_mk := 1
 
-endif # ifndef arduino_builder_layers_mk
+ifndef cpb_builder_mk
+    $(error This file cannot be manually included)
+endif
+
+ifeq ($(PROJ_TYPE),app)
+    ifndef ARTIFACT
+        ARTIFACT := $(PROJ_NAME)
+    endif
+else ifeq ($(PROJ_TYPE),lib)
+    ifdef LIB_TYPE
+        $(call FN_CHECK_WORDS,LIB_TYPE,static,Unsupported value: $(LIB_TYPE))
+    else
+        LIB_TYPE := static
+    endif
+    ifndef ARTIFACT
+        ARTIFACT := lib$(LIB_NAME).a
+    endif
+endif
+
+endif # ifndef arduino_builder_toolchains_gcc_arduino_toolchain_mk

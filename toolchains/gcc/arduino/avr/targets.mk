@@ -18,15 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ifndef hosts_arduino_avr_targets_mk
-hosts_arduino_avr_targets_mk := 1
+ifndef arduino_builder_toolchains_gcc_arduino_avr_targets_mk
+arduino_builder_toolchains_gcc_arduino_avr_targets_mk := 1
 
-ifndef hosts_arduino_avr_host_mk
+ifndef arduino_builder_builder_mk
     $(error This file cannot be manually included)
 endif
 
 POST_BUILD_DEPS += $(O_BUILD_DIR)/$(ARTIFACT).hex
-DIST_FILES += $(O_BUILD_DIR)/$(ARTIFACT).hex:bin/$(ARTIFACT).hex
+DIST_FILES += $(O_BUILD_DIR)/$(ARTIFACT).hex->bin/$(ARTIFACT).hex
 
 # ==============================================================================
 $(O_BUILD_DIR)/$(ARTIFACT).hex: $(O_BUILD_DIR)/$(ARTIFACT)
@@ -42,4 +42,4 @@ upload: dist
 	$(VERBOSE)avrdude -C/etc/avrdude.conf -v -p$(ARDUINO_MCU) -carduino -P$(PORT) -Uflash:w:$(O_DIST_DIR)/bin/$(ARTIFACT).hex:i
 # ==============================================================================
 
-endif # ifndef hosts_arduino_avr_targets_mk
+endif # ifndef arduino_builder_toolchains_gcc_arduino_avr_targets_mk
