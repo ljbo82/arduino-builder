@@ -20,12 +20,12 @@
 
 # arduino-avr-uno host definitions
 
-ifndef ab_toolchains_gcc_arduino_avr_uno_toolchain_mk
-ab_toolchains_gcc_arduino_avr_uno_toolchain_mk := $(lastword $(MAKEFILE_LIST))
-
 ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
+
+ifndef ab_toolchains_gcc_arduino_avr_uno_toolchain_mk
+ab_toolchains_gcc_arduino_avr_uno_toolchain_mk := $(lastword $(MAKEFILE_LIST))
 
 ARDUINO_MCU     := atmega328p
 ARDUINO_F_CPU   := 16000000L

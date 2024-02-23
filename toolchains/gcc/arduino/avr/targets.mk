@@ -18,12 +18,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-ifndef ab_toolchains_gcc_arduino_avr_targets_mk
-ab_toolchains_gcc_arduino_avr_targets_mk := $(lastword $(MAKEFILE_LIST))
-
 ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
+
+ifndef ab_toolchains_gcc_arduino_avr_targets_mk
+ab_toolchains_gcc_arduino_avr_targets_mk := $(lastword $(MAKEFILE_LIST))
 
 POST_BUILD_DEPS += $(O_BUILD_DIR)/$(ARTIFACT).hex
 DIST_FILES += $(O_BUILD_DIR)/$(ARTIFACT).hex->bin/$(ARTIFACT).hex

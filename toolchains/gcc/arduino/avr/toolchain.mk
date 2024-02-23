@@ -20,19 +20,17 @@
 
 # arduino-avr host definitions
 
-ifndef ab_toolchains_gcc_arduino_avr_toolchain_mk
-ab_toolchains_gcc_arduino_avr_toolchain_mk := $(lastword $(MAKEFILE_LIST))
-
 ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
 
+ifndef ab_toolchains_gcc_arduino_avr_toolchain_mk
+ab_toolchains_gcc_arduino_avr_toolchain_mk := $(lastword $(MAKEFILE_LIST))
+
 CROSS_COMPILE ?= avr-
 RELEASE_OPTIMIZATION_LEVEL := s
 
-ifdef ARDUINO_ARCH
-    $(error [ARDUINO_ARCH] Reserved variable)
-endif
+$(call FN_CHECK_RESERVED,ARDUINO_ARCH)
 
 ARDUINO_ARCH := AVR
 

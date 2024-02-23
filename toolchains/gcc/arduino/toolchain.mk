@@ -20,12 +20,12 @@
 
 # Arduino host definitions
 
-ifndef ab_toolchains_gcc_arduino_toolchain_mk
-ab_toolchains_gcc_arduino_toolchain_mk := $(lastword $(MAKEFILE_LIST))
-
 ifndef ab_builder_mk
     $(error This file cannot be manually included)
 endif
+
+ifndef ab_toolchains_gcc_arduino_toolchain_mk
+ab_toolchains_gcc_arduino_toolchain_mk := $(lastword $(MAKEFILE_LIST))
 
 ifeq ($(PROJ_TYPE),app)
     ifndef ARTIFACT
@@ -33,7 +33,7 @@ ifeq ($(PROJ_TYPE),app)
     endif
 else ifeq ($(PROJ_TYPE),lib)
     ifdef LIB_TYPE
-        $(call FN_CHECK_WORDS,LIB_TYPE,static,Unsupported value: $(LIB_TYPE))
+        $(call FN_CHECK_OPTIONS,LIB_TYPE,static,Unsupported value: $(LIB_TYPE))
     else
         LIB_TYPE := static
     endif
